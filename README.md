@@ -1,6 +1,5 @@
 # QuizMaster Web
 
-Sistem kuis online untuk pembelajaran dan kompetisi coding.
 
 ## Admin Login
 ```
@@ -9,38 +8,38 @@ Password : atmin123
 ```
 
 
-## Screenshot Fitur
+## Screenshot
 
 ### Landing Page
-![Landing Page](assets/landing-page.png)
+![Landing Page](assets/img/screenshot/landing.png)
 Halaman utama aplikasi QuizMaster.
 
-### Login Admin
-![Login Admin](assets/login.png)
+### Login
+![Login](assets/img/screenshot/login.png)
 Form login untuk admin dan player.
 
-### Register Player
-![Register Player](assets/register.png)
+### Register
+![Register](assets/img/screenshot/register.png)
 Form pendaftaran akun player.
 
 ### Dashboard Player
-![Dashboard Player](assets/dashboard%20player.png)
+![Dashboard Player](assets/img/screenshot/dashboard%20player.png)
 Tampilan utama dashboard player.
 
 ### Gameplay Quiz
-![Gameplay Quiz](assets/gameplay%20quiz.png)
+![Gameplay Quiz](assets/img/screenshot/gameplay%20quiz.png)
 Contoh tampilan saat mengerjakan soal quiz.
 
 ### Add Quiz (Admin)
-![Add Quiz](assets/add%20quiz.png)
+![Add Quiz](assets/img/screenshot/add%20quiz.png)
 Form tambah quiz oleh admin.
 
 ### Bulk Import Quiz (Admin)
-![Bulk Import Quiz](assets/bulk%20quiz.png)
+![Bulk Import Quiz](assets/img/screenshot/bulk%20quiz.png)
 Fitur import quiz secara massal.
 
 ### Data Player (Admin)
-![Data Player](assets/data%20player.png)
+![Data Player](assets/img/screenshot/data%20player.png)
 Tabel data player dan statistik di dashboard admin.
 
 ---
