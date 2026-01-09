@@ -2,6 +2,37 @@
 session_start();
 include "server/config/koneksi.php";
 
+// Fallback: jika sudah ada session, redirect langsung
+if (isset($_SESSION['user_id'])) {
+    if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+        header("Location: admin/index.php");
+        exit();
+    } else {
+        header("Location: player/pages/dashboard_player.php");
+        exit();
+    }
+}
+
+// Fallback: jika ada cookie, login otomatis
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['user_login'])) {
+    $decoded_username = base64_decode($_COOKIE['user_login']);
+    $query = "SELECT * FROM users WHERE username = '$decoded_username'";
+    $result = mysqli_query($conn, $query);
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['user_id'] = $row['id'];
+        $_SESSION['username'] = $row['username'];
+        $_SESSION['role'] = $row['role'];
+        if ($row['role'] == 'admin') {
+            header("Location: admin/index.php");
+            exit();
+        } else {
+            header("Location: player/pages/dashboard_player.php");
+            exit();
+        }
+    }
+}
+
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
@@ -14,6 +45,15 @@ if (isset($_POST['login'])) {
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = $row['role'];
+        // Set cookie setelah login sukses
+        $cookie_value = base64_encode($row['username']);
+        setcookie('user_login', $cookie_value, [
+            'expires' => time() + (86400 * 30),
+            'path' => '/',
+            'httponly' => true,
+            'secure' => false,
+            'samesite' => 'Lax'
+        ]);
 
         if ($row['role'] == 'admin') {
             header("Location: admin/index.php");
@@ -98,7 +138,7 @@ if (isset($_POST['login'])) {
                 </div>
 
                 <button type="submit" name="login" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-white transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] mt-4">
-                    LOGIN SYSTEM
+                    LOGIN
                 </button>
             </form>
 

@@ -1,16 +1,17 @@
 <?php
 session_start();
 include "../../server/config/koneksi.php";
-
-if (!isset($_SESSION['user_id'])) {
+include_once "../../server/auth_check.php";
+checkLogin();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
     header("Location: ../../login.php");
     exit();
 }
 
-// Menangkap materi dari URL
+// mengambil materi
 $materi = isset($_GET['materi']) ? mysqli_real_escape_string($conn, $_GET['materi']) : '';
 
-// 1. QUERY RANDOM: Mengambil soal secara acak menggunakan ORDER BY RAND()
+// Mengambil soal secara acak menggunakan ORDER BY RAND()
 $query = mysqli_query($conn, "SELECT * FROM quizzes WHERE materi = '$materi' ORDER BY RAND()");
 $soal_list = mysqli_fetch_all($query, MYSQLI_ASSOC);
 
@@ -198,7 +199,7 @@ if (count($soal_list) == 0) {
                 const currentStep = ref(0);
                 const totalScore = ref(0);
                 const finished = ref(false);
-                const showImage = ref(false); // State untuk kontrol modal gambar
+                const showImage = ref(false);
 
                 const completedQuizIds = soal.value.map(s => s.id);
 
@@ -209,13 +210,12 @@ if (count($soal_list) == 0) {
                 };
 
                 const handleAnswer = (userAns) => {
-                    // 1. Cek Jawaban & Tambah Skor
+                    // Cek Jawaban & Tambah Skor
                     if (userAns === soal.value[currentStep.value].jawaban_benar) {
                         totalScore.value += parseInt(soal.value[currentStep.value].score);
                     }
 
-                    // 2. Logika Munculkan Gambar (Setiap kelipatan 5 soal)
-                    // Kita cek (currentStep + 1) karena array mulai dari 0
+                    // Logika Munculkan Gambar setiap selesai 5 soal
                     if ((currentStep.value + 1) % 5 === 0 && (currentStep.value + 1) < soal.value.length) {
                         showImage.value = true;
                     } else {
@@ -234,7 +234,7 @@ if (count($soal_list) == 0) {
 
                 const closeImage = () => {
                     showImage.value = false;
-                    nextQuestion(); // Lanjut ke soal berikutnya setelah gambar ditutup
+                    nextQuestion();
                 };
 
                 const submitFinalResults = async () => {

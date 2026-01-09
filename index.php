@@ -75,10 +75,10 @@
                         START MISSION <i class="fas fa-rocket ml-2"></i>
                     </a>
                     <div class="flex -space-x-3 items-center ml-4">
-                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9Z5stLtpcg51JjE7hzfWqvEchLgP3QL1FgQ&s">
-                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp-DgUyv3JUJJGjPt43X8PFARDZ3jTy9XFNg&s">
-                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Natalius_Pigai_-_Minister_of_Human_Rights.png/250px-Natalius_Pigai_-_Minister_of_Human_Rights.png">
-                        <span class="pl-6 text-sm font-bold text-slate-500">19juta Pek- Players Joined!</span>
+                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKkvtHqh_nteQCfh8aIGhnXfjY7X8Gq9G88Q&s">
+                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMaL8ADYeMTI_d05vO12jbizVKahEtBc_nmQ&s">
+                        <img class="w-10 h-10 rounded-full border-2 border-[#0f172a]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9Pe68oq409W00aqhW1tJtuHSUng_4Zk265g&s">
+                        <span class="pl-6 text-sm font-bold text-slate-500">1617 Players Joined!</span>
                     </div>
                 </div>
             </div>
@@ -92,11 +92,11 @@
                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
                         </div>
                         <pre class="text-blue-400 font-mono text-sm leading-relaxed">
-<span class="text-purple-400">class</span> <span class="text-yellow-300">Sawit</span> {
+<span class="text-purple-400">class</span> <span class="text-yellow-300">master</span> {
   <span class="text-purple-400">constructor</span>(name) {
-    <span class="text-blue-300">this</span>.name = prab-;
-    <span class="text-blue-300">this</span>.level = <span class="text-orange-400">17,3 hektar</span>;
-    <span class="text-blue-300">this</span>.status = <span class="text-green-400">'Fetis ku sawit'</span>;
+    <span class="text-blue-300">this</span>.name = codemaster;
+    <span class="text-blue-300">this</span>.level = <span class="text-orange-400">master</span>;
+    <span class="text-blue-300">this</span>.status = <span class="text-green-400">'Ongoing'</span>;
   }
 
   <span class="text-yellow-300">coding</span>() {
@@ -166,7 +166,7 @@
     </section>
 
     <footer class="py-10 text-center border-t border-white/5 text-slate-600 text-sm font-bold uppercase tracking-widest">
-        &copy; 2024 CodeMaster Gaming Division. All Rights Reserved.
+        &copy; Aldi alfariz 24552011212 - CodeMaster 2024
     </footer>
 
 </body>

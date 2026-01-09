@@ -1,7 +1,8 @@
 <?php
 session_start();
-// Hapus include koneksi di sini karena dashboard menggunakan fetch (JS) untuk ambil data
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
+include_once "../server/auth_check.php";
+checkLogin();
+if (!isAdmin()) {
     header("Location: ../login.php");
     exit();
 }
@@ -183,6 +184,14 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                     <h1 class="text-3xl font-black text-slate-900 tracking-tight">Player Performance</h1>
                     <p class="text-slate-500 font-medium">Monitoring performa dan total skor seluruh pemain.</p>
                 </header>
+                <div class="mb-6 flex gap-4">
+                    <a href="../server/export_excel.php" class="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-sm">
+                        <i class="fas fa-file-excel"></i> Ekspor ke Excel
+                    </a>
+                    <a href="../server/export_pdf.php" class="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-red-700 transition-all shadow-sm">
+                        <i class="fas fa-file-pdf"></i> Ekspor ke PDF
+                    </a>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                     <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
@@ -259,7 +268,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
             ref,
             onMounted,
             computed
-        } = Vue; // FIX 1: computed ditambahkan di sini
+        } = Vue;
 
         createApp({
             setup() {
@@ -268,7 +277,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                 const quizzes = ref([]);
                 const playerStats = ref([]);
                 const bulkText = ref('');
-                const apiUrl = '../server/api_quiz.php';
+                const apiQuizBase = '../server/admin';
 
                 const newQuiz = ref({
                     judul: '',
@@ -284,13 +293,12 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                 });
 
                 const fetchQuizzes = async () => {
-                    const res = await fetch(apiUrl + '?t=' + Date.now());
+                    const res = await fetch(`${apiQuizBase}/read.php?t=${Date.now()}`);
                     quizzes.value = await res.json();
                 };
 
                 const fetchStats = async () => {
                     try {
-                        // Arahkan ke file API yang kita buat di langkah 1
                         const res = await fetch('../server/api_stats.php?t=' + Date.now());
                         const data = await res.json();
                         playerStats.value = data;
@@ -306,7 +314,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                 });
 
                 const addQuiz = async () => {
-                    await fetch(apiUrl, {
+                    await fetch(`${apiQuizBase}/create.php`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -330,7 +338,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
 
                 const deleteQuiz = async (id) => {
                     if (confirm("Hapus?")) {
-                        await fetch(`${apiUrl}?id=${id}`, {
+                        await fetch(`${apiQuizBase}/delete.php?id=${id}`, {
                             method: 'DELETE'
                         });
                         fetchQuizzes();
@@ -341,7 +349,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                     try {
                         const data = JSON.parse(bulkText.value);
                         for (const item of data) {
-                            await fetch(apiUrl, {
+                            await fetch(`${apiQuizBase}/create.php`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -361,7 +369,6 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
                     fetchStats();
                 });
 
-                // FIX 3: Gabungkan semua return dalam SATU blok
                 return {
                     activeTab,
                     mode,

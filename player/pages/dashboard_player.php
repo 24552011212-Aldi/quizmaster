@@ -2,8 +2,8 @@
 session_start();
 error_reporting(0);
 include "../../server/config/koneksi.php";
-
-// Tahap 5: Validasi Session & Role (Auth Check)
+include_once "../../server/auth_check.php";
+checkLogin();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
     header("Location: ../../login.php");
     exit();
@@ -11,16 +11,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
 
 $user_id = $_SESSION['user_id'];
 
-// --- TAHAP 1: PENGAMANAN DATABASE (PREPARED STATEMENTS) ---
-
-// 1. Ambil Total Skor User secara aman
+//mengambil total score
 $stmt_score = $conn->prepare("SELECT SUM(skor_akhir) as total FROM leaderboard WHERE user_id = ?");
 $stmt_score->bind_param("i", $user_id);
 $stmt_score->execute();
 $data_score = $stmt_score->get_result()->fetch_assoc();
 $total_xp = $data_score['total'] ?? 0;
 
-// 2. Query Leaderboard Top 5 (Tetap aman karena tidak ada input user langsung)
+// leaderboard sampai 5 besar
 $query_leaderboard = mysqli_query($conn, "
     SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
     FROM users u
@@ -31,8 +29,7 @@ $query_leaderboard = mysqli_query($conn, "
     LIMIT 5
 ");
 
-// 3. Query Kategori dengan Progress secara aman
-// Kita gunakan subquery yang merujuk pada $user_id
+
 $query_kategori = mysqli_query($conn, "
     SELECT 
         q.materi, 
@@ -151,7 +148,7 @@ $query_kategori = mysqli_query($conn, "
                 $selesai = $kategori['soal_selesai'];
                 $is_fully_done = ($total > 0 && $total == $selesai);
 
-                // Ikon Brand Logic
+                // Ikon materi
                 $icon = "fa-code";
                 if (stripos($materi_nama, 'js') !== false || stripos($materi_nama, 'javascript') !== false) $icon = "fa-js";
                 elseif (stripos($materi_nama, 'python') !== false) $icon = "fa-python";

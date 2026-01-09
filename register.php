@@ -70,13 +70,13 @@ if (isset($_POST['register'])) {
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2 mb-2 block">Password</label>
                     <div class="relative">
                         <i class="fas fa-fingerprint absolute left-4 top-4 text-slate-500 text-sm"></i>
-                        <input type="password" name="password" placeholder="Masukkan password kuat" required
+                        <input type="password" name="password" placeholder="Masukkan password" required
                             class="w-full bg-slate-900/50 border border-slate-700 p-4 pl-12 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all">
                     </div>
                 </div>
 
                 <button type="submit" name="register" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-black text-white transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] mt-4 uppercase tracking-widest text-sm">
-                    START MY JOURNEY
+                    START YOUR JOURNEY
                 </button>
             </form>
 

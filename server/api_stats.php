@@ -1,15 +1,14 @@
 <?php
 session_start();
 include "config/koneksi.php";
-
-// Proteksi Admin
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
+include_once "auth_check.php";
+checkLogin();
+if (!isAdmin()) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Unauthorized']);
     exit();
 }
 
-// Pastikan nama tabel 'leaderboard' atau 'scores' sesuai dengan di database Anda
 $query = "SELECT 
             u.id, 
             u.username, 

@@ -1,11 +1,10 @@
 <?php
 session_start();
 include "config/koneksi.php";
-
+include_once "auth_check.php";
 header('Content-Type: application/json');
-
-// Pastikan user sudah login
-if (!isset($_SESSION['user_id'])) {
+checkLogin();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
     echo json_encode(['status' => 'error', 'message' => 'User tidak terautentikasi']);
     exit();
 }
@@ -17,21 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $skor_akhir = mysqli_real_escape_string($conn, $data['skor_akhir']);
     $tanggal    = date('Y-m-d H:i:s');
 
-    // Ambil quiz_ids (bisa berupa array dari pengerjaan materi)
     $quiz_ids   = $data['quiz_ids'];
 
-    // 1. Simpan ke tabel Leaderboard
+    // Simpan ke tabel Leaderboard
     $query_leaderboard = "INSERT INTO leaderboard (user_id, skor_akhir, tanggal_main) 
                           VALUES ('$user_id', '$skor_akhir', '$tanggal')";
     $res_leaderboard = mysqli_query($conn, $query_leaderboard);
 
-    // 2. Simpan semua soal yang ada di materi tersebut ke Quiz History
+    // Simpan semua soal yang ada di materi tersebut ke Quiz History
     $success_history = true;
     if (is_array($quiz_ids)) {
         foreach ($quiz_ids as $q_id) {
             $q_id = mysqli_real_escape_string($conn, $q_id);
 
-            // Cek dulu apakah sudah pernah ada di history agar tidak duplikat
             $cek = mysqli_query($conn, "SELECT id FROM quiz_history WHERE user_id = '$user_id' AND quiz_id = '$q_id'");
 
             if (mysqli_num_rows($cek) == 0) {
