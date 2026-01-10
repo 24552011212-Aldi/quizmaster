@@ -8,7 +8,9 @@ Password : atmin123
 ```
 ```
 Todo:
-- 
+- add screenshot new page
+- revisi landing page
+- add quiz 
 ```
 
 
