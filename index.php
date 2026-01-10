@@ -49,7 +49,7 @@
             </div>
             <div class="flex gap-4">
                 <a href="login.php" class="text-sm font-bold hover:text-blue-400 transition py-2 px-4">Login</a>
-                <a href="register.php" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-blue-600/20">Sign Up</a>
+                <a href="register.php" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-blue-600/20">Register</a>
             </div>
         </div>
     </nav>

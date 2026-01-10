@@ -18,7 +18,7 @@ $stmt_score->execute();
 $data_score = $stmt_score->get_result()->fetch_assoc();
 $total_xp = $data_score['total'] ?? 0;
 
-// leaderboard sampai 5 besar
+// leaderboard sampai 3 besar
 $query_leaderboard = mysqli_query($conn, "
     SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
     FROM users u
@@ -26,9 +26,8 @@ $query_leaderboard = mysqli_query($conn, "
     WHERE u.role = 'player'
     GROUP BY u.id
     ORDER BY total_skor DESC
-    LIMIT 5
+    LIMIT 3
 ");
-
 
 $query_kategori = mysqli_query($conn, "
     SELECT 
@@ -95,6 +94,9 @@ $query_kategori = mysqli_query($conn, "
                     <p class="text-[10px] uppercase font-bold text-slate-500">Logged in as</p>
                     <p class="text-sm font-bold text-white"><?php echo htmlspecialchars($_SESSION['username']); ?></p>
                 </div>
+                <a href="../../profile.php" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 w-10 h-10 flex items-center justify-center rounded-xl border border-blue-500/20 transition">
+                    <i class="fas fa-user"></i>
+                </a>
                 <a href="../../logout.php" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 w-10 h-10 flex items-center justify-center rounded-xl border border-red-500/20 transition">
                     <i class="fas fa-power-off"></i>
                 </a>
@@ -115,9 +117,10 @@ $query_kategori = mysqli_query($conn, "
                 <i class="fas fa-rocket absolute right-[-20px] bottom-[-20px] text-[12rem] text-white/10 -rotate-12"></i>
             </div>
 
+            <!-- Leaderboard Rajin -->
             <div class="glass-card p-6 rounded-[2.5rem]">
                 <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <i class="fas fa-trophy text-yellow-500"></i> Hall of Fame
+                    <i class="fas fa-trophy text-yellow-500"></i> TOP Si Paling Ngoding
                 </h3>
                 <div class="space-y-3">
                     <?php $no = 1;
@@ -133,6 +136,11 @@ $query_kategori = mysqli_query($conn, "
                             <span class="text-xs font-black text-slate-300"><?php echo number_format($row['total_skor']); ?> XP</span>
                         </div>
                     <?php endwhile; ?>
+                    <a href="leaderboard_page.php"
+                        class="flex items-center justify-between w-full bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/20 group/btn">
+                        <span>Lihat Leaderboard</span>
+                        <i class="fas fa-arrow-right -rotate-45 group-hover/btn:rotate-0 transition-transform"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -156,6 +164,10 @@ $query_kategori = mysqli_query($conn, "
                 elseif (stripos($materi_nama, 'php') !== false) $icon = "fa-php";
                 elseif (stripos($materi_nama, 'html') !== false) $icon = "fa-html5";
                 elseif (stripos($materi_nama, 'css') !== false) $icon = "fa-css3-alt";
+                elseif (stripos($materi_nama, 'c++') !== false) $icon = "fa-cuttlefish";
+                elseif (stripos($materi_nama, 'c#') !== false) $icon = "fa-cuttlefish";
+                elseif (stripos($materi_nama, 'ruby') !== false) $icon = "fa-gem";
+                elseif (stripos($materi_nama, 'sql') !== false) $icon = "fa-sql-server";
             ?>
                 <div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group <?php echo $is_fully_done ? 'opacity-60' : ''; ?>">
                     <div class="h-40 flex items-center justify-center relative overflow-hidden bg-slate-800/30 border-b border-slate-700/50">

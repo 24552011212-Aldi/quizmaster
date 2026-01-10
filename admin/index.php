@@ -92,6 +92,10 @@ if (!isAdmin()) {
                 </div>
 
                 <nav class="space-y-2">
+                    <div @click="activeTab = 'materi'" :class="activeTab === 'materi' ? 'bg-blue-600 shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="group flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all">
+                        <i class="fas fa-book text-sm"></i>
+                        <span class="font-bold">Manage Materi</span>
+                    </div>
                     <div @click="activeTab = 'quizzes'" :class="activeTab === 'quizzes' ? 'bg-blue-600 shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="group flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all">
                         <i class="fas fa-tasks text-sm"></i>
                         <span class="font-bold">Manage Quizzes</span>
@@ -111,6 +115,42 @@ if (!isAdmin()) {
 
         <main class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
 
+            <div v-if="activeTab === 'materi'">
+                <header class="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight text-slate-900">Materi Management</h1>
+                        <p class="text-slate-500 font-medium">Kelola kategori materi untuk quiz.</p>
+                    </div>
+                </header>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-10">
+                    <div class="flex gap-4 mb-6">
+                        <input v-model="newMateri" type="text" placeholder="Nama Materi" class="p-4 w-full rounded-2xl form-input bg-slate-50">
+                        <button @click="addMateri" class="bg-blue-600 text-white px-8 rounded-2xl font-bold">Tambah</button>
+                    </div>
+                    <div class="bg-white rounded-[2rem] border overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="p-5 text-xs font-black text-slate-400 uppercase">Materi</th>
+                                    <th class="p-5 text-right text-xs font-black text-slate-400 uppercase">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="m in materiList" :key="m" class="border-t">
+                                    <td class="p-5 font-bold">{{ m }}</td>
+                                    <td class="p-5 text-right">
+                                        <button @click="deleteMateri(m)" class="text-red-500"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr v-if="materiList.length === 0">
+                                    <td colspan="2" class="p-10 text-center text-slate-400">Belum ada materi.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="activeTab === 'quizzes'">
                 <header class="flex justify-between items-center mb-10">
                     <div>
@@ -119,7 +159,7 @@ if (!isAdmin()) {
                     </div>
                 </header>
 
-                <div v-if="activeTab === 'quizzes'" class="inline-flex bg-slate-200/50 p-1.5 rounded-2xl mb-8">
+                <div class="inline-flex bg-slate-200/50 p-1.5 rounded-2xl mb-8">
                     <button @click="mode = 'single'" :class="mode === 'single' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2">
                         <i class="fas fa-plus-circle"></i> Single Entry
                     </button>
@@ -133,7 +173,10 @@ if (!isAdmin()) {
                         <div class="md:col-span-2 space-y-6">
                             <input v-model="newQuiz.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
                             <div class="grid grid-cols-2 gap-4">
-                                <input v-model="newQuiz.materi" type="text" placeholder="Kategori" class="p-4 rounded-2xl form-input bg-slate-50">
+                                <select v-model="newQuiz.materi" class="p-4 rounded-2xl form-input bg-slate-50">
+                                    <option value="">Pilih Materi</option>
+                                    <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                                </select>
                                 <input v-model="newQuiz.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
                             </div>
                             <textarea v-model="newQuiz.soal" placeholder="Pertanyaan..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
@@ -157,23 +200,63 @@ if (!isAdmin()) {
                     <button @click="importBulk" class="w-full bg-emerald-600 text-white font-bold py-5 rounded-2xl">Import</button>
                 </div>
 
-                <div class="bg-white rounded-[2rem] border overflow-hidden">
+                <div class="bg-white rounded-[2rem] border overflow-hidden mb-6">
+                    <div class="flex gap-4 p-5">
+                        <select v-model="selectedMateri" class="p-4 rounded-2xl form-input bg-slate-50">
+                            <option value="">Semua Materi</option>
+                            <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                        </select>
+                    </div>
                     <table class="w-full text-left">
                         <thead class="bg-slate-50">
                             <tr>
                                 <th class="p-5 text-xs font-black text-slate-400 uppercase">Details</th>
+                                <th class="p-5 text-center text-xs font-black text-slate-400 uppercase">Materi</th>
                                 <th class="p-5 text-center text-xs font-black text-slate-400 uppercase">XP</th>
                                 <th class="p-5 text-right text-xs font-black text-slate-400 uppercase">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="q in quizzes" :key="q.id" class="border-t">
+                            <tr v-for="q in filteredQuizzes" :key="q.id" class="border-t">
                                 <td class="p-5 font-bold">{{ q.judul }}</td>
+                                <td class="p-5 text-center">{{ q.materi }}</td>
                                 <td class="p-5 text-center">{{ q.score }}</td>
-                                <td class="p-5 text-right">
+                                <td class="p-5 text-right flex gap-2 justify-end">
+                                    <button @click="showEditQuiz(q)" class="text-blue-500 z-50"><i class="fas fa-edit"></i></button>
                                     <button @click="deleteQuiz(q.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
+                                    <!-- Modal Edit Quiz -->
+                                    <div v-if="editQuizModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                                        <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl relative">
+                                            <button @click="closeEditQuiz" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                                            <h2 class="text-xl font-bold mb-6">Edit Quiz</h2>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div class="md:col-span-2 space-y-6">
+                                                    <input v-model="editQuizData.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <select v-model="editQuizData.materi" class="p-4 rounded-2xl form-input bg-slate-50">
+                                                            <option value="">Pilih Materi</option>
+                                                            <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                                                        </select>
+                                                        <input v-model="editQuizData.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
+                                                    </div>
+                                                    <textarea v-model="editQuizData.soal" placeholder="Pertanyaan..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
+                                                </div>
+                                                <textarea v-model="editQuizData.snippet" placeholder="Code Snippet..." class="p-4 w-full rounded-2xl form-input bg-slate-900 text-emerald-400 font-mono text-sm"></textarea>
+                                                <div class="md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                                    <input v-for="opt in ['a','b','c','d']" :key="opt" v-model="editQuizData['opsi_'+opt]" type="text" :placeholder="'Opsi ' + opt.toUpperCase()" class="p-4 rounded-2xl form-input bg-slate-50">
+                                                </div>
+                                                <div class="md:col-span-3 flex gap-4">
+                                                    <select v-model="editQuizData.jawaban_benar" class="p-4 rounded-2xl form-input bg-emerald-50 flex-1">
+                                                        <option value="">Pilih Kunci Jawaban</option>
+                                                        <option v-for="ans in ['A','B','C','D']" :value="ans">{{ans}}</option>
+                                                    </select>
+                                                    <button @click="updateQuiz" class="bg-blue-600 text-white px-10 rounded-2xl font-bold">Update</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                         </tbody>
                     </table>
                 </div>
@@ -279,6 +362,12 @@ if (!isAdmin()) {
                 const bulkText = ref('');
                 const apiQuizBase = '../server/admin';
 
+                // Materi
+                const materiList = ref([]);
+                const newMateri = ref('');
+                const selectedMateri = ref('');
+
+                // Quiz
                 const newQuiz = ref({
                     judul: '',
                     materi: '',
@@ -292,9 +381,37 @@ if (!isAdmin()) {
                     score: 10
                 });
 
+                // Edit Quiz
+                const editQuizModal = ref(false);
+                const editQuizData = ref({});
+
+                const fetchMateri = async () => {
+                    try {
+                        const res = await fetch(`${apiQuizBase}/materi.php?t=${Date.now()}`);
+                        materiList.value = await res.json();
+                    } catch (e) {
+                        materiList.value = [];
+                    }
+                };
+
+                const addMateri = () => {
+                    if (newMateri.value && !materiList.value.includes(newMateri.value)) {
+                        materiList.value.push(newMateri.value);
+                        newMateri.value = '';
+                    }
+                };
+
+                const deleteMateri = (m) => {
+                    if (confirm('Hapus materi?')) {
+                        materiList.value = materiList.value.filter(mat => mat !== m);
+                        quizzes.value = quizzes.value.filter(q => q.materi !== m);
+                    }
+                };
+
                 const fetchQuizzes = async () => {
                     const res = await fetch(`${apiQuizBase}/read.php?t=${Date.now()}`);
                     quizzes.value = await res.json();
+                    fetchMateri();
                 };
 
                 const fetchStats = async () => {
@@ -336,6 +453,28 @@ if (!isAdmin()) {
                     fetchQuizzes();
                 };
 
+                const showEditQuiz = (quiz) => {
+                    editQuizData.value = { ...quiz };
+                    editQuizModal.value = true;
+                };
+
+                const closeEditQuiz = () => {
+                    editQuizModal.value = false;
+                    editQuizData.value = {};
+                };
+
+                const updateQuiz = async () => {
+                    await fetch(`${apiQuizBase}/update.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(editQuizData.value)
+                    });
+                    closeEditQuiz();
+                    fetchQuizzes();
+                };
+
                 const deleteQuiz = async (id) => {
                     if (confirm("Hapus?")) {
                         await fetch(`${apiQuizBase}/delete.php?id=${id}`, {
@@ -364,6 +503,11 @@ if (!isAdmin()) {
                     }
                 };
 
+                const filteredQuizzes = computed(() => {
+                    if (!selectedMateri.value) return quizzes.value;
+                    return quizzes.value.filter(q => q.materi === selectedMateri.value);
+                });
+
                 onMounted(() => {
                     fetchQuizzes();
                     fetchStats();
@@ -379,7 +523,20 @@ if (!isAdmin()) {
                     addQuiz,
                     deleteQuiz,
                     importBulk,
-                    averageScore
+                    averageScore,
+                    // Materi
+                    materiList,
+                    newMateri,
+                    addMateri,
+                    deleteMateri,
+                    selectedMateri,
+                    filteredQuizzes,
+                    // Edit Quiz
+                    editQuizModal,
+                    editQuizData,
+                    showEditQuiz,
+                    closeEditQuiz,
+                    updateQuiz
                 };
             }
         }).mount('#app');
