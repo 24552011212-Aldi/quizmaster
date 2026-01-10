@@ -18,7 +18,7 @@ $stmt_score->execute();
 $data_score = $stmt_score->get_result()->fetch_assoc();
 $total_xp = $data_score['total'] ?? 0;
 
-// leaderboard sampai 5 besar
+// leaderboard dari atas
 $query_leaderboard = mysqli_query($conn, "
     SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
     FROM users u
@@ -28,7 +28,7 @@ $query_leaderboard = mysqli_query($conn, "
     ORDER BY total_skor DESC
 ");
 
-// leaderboard sampai 5 besar dari bawah
+// leaderboard dari bawah
 $query_leaderboard_malas = mysqli_query($conn, "
     SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
     FROM users u

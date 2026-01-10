@@ -94,7 +94,7 @@ $query_kategori = mysqli_query($conn, "
                     <p class="text-[10px] uppercase font-bold text-slate-500">Logged in as</p>
                     <p class="text-sm font-bold text-white"><?php echo htmlspecialchars($_SESSION['username']); ?></p>
                 </div>
-                <a href="../../profile.php" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 w-10 h-10 flex items-center justify-center rounded-xl border border-blue-500/20 transition">
+                <a href="profile.php" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 w-10 h-10 flex items-center justify-center rounded-xl border border-blue-500/20 transition">
                     <i class="fas fa-user"></i>
                 </a>
                 <a href="../../logout.php" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 w-10 h-10 flex items-center justify-center rounded-xl border border-red-500/20 transition">

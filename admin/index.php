@@ -226,37 +226,37 @@ if (!isAdmin()) {
                                     <button @click="deleteQuiz(q.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
-                                    <!-- Modal Edit Quiz -->
-                                    <div v-if="editQuizModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                                        <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl relative">
-                                            <button @click="closeEditQuiz" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-                                            <h2 class="text-xl font-bold mb-6">Edit Quiz</h2>
-                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div class="md:col-span-2 space-y-6">
-                                                    <input v-model="editQuizData.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <select v-model="editQuizData.materi" class="p-4 rounded-2xl form-input bg-slate-50">
-                                                            <option value="">Pilih Materi</option>
-                                                            <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
-                                                        </select>
-                                                        <input v-model="editQuizData.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
-                                                    </div>
-                                                    <textarea v-model="editQuizData.soal" placeholder="Pertanyaan..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
-                                                </div>
-                                                <textarea v-model="editQuizData.snippet" placeholder="Code Snippet..." class="p-4 w-full rounded-2xl form-input bg-slate-900 text-emerald-400 font-mono text-sm"></textarea>
-                                                <div class="md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                                    <input v-for="opt in ['a','b','c','d']" :key="opt" v-model="editQuizData['opsi_'+opt]" type="text" :placeholder="'Opsi ' + opt.toUpperCase()" class="p-4 rounded-2xl form-input bg-slate-50">
-                                                </div>
-                                                <div class="md:col-span-3 flex gap-4">
-                                                    <select v-model="editQuizData.jawaban_benar" class="p-4 rounded-2xl form-input bg-emerald-50 flex-1">
-                                                        <option value="">Pilih Kunci Jawaban</option>
-                                                        <option v-for="ans in ['A','B','C','D']" :value="ans">{{ans}}</option>
-                                                    </select>
-                                                    <button @click="updateQuiz" class="bg-blue-600 text-white px-10 rounded-2xl font-bold">Update</button>
-                                                </div>
+                            <!-- Modal Edit Quiz -->
+                            <div v-if="editQuizModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                                <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl relative">
+                                    <button @click="closeEditQuiz" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                                    <h2 class="text-xl font-bold mb-6">Edit Quiz</h2>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div class="md:col-span-2 space-y-6">
+                                            <input v-model="editQuizData.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <select v-model="editQuizData.materi" class="p-4 rounded-2xl form-input bg-slate-50">
+                                                    <option value="">Pilih Materi</option>
+                                                    <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                                                </select>
+                                                <input v-model="editQuizData.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
                                             </div>
+                                            <textarea v-model="editQuizData.soal" placeholder="Pertanyaan..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
+                                        </div>
+                                        <textarea v-model="editQuizData.snippet" placeholder="Code Snippet..." class="p-4 w-full rounded-2xl form-input bg-slate-900 text-emerald-400 font-mono text-sm"></textarea>
+                                        <div class="md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <input v-for="opt in ['a','b','c','d']" :key="opt" v-model="editQuizData['opsi_'+opt]" type="text" :placeholder="'Opsi ' + opt.toUpperCase()" class="p-4 rounded-2xl form-input bg-slate-50">
+                                        </div>
+                                        <div class="md:col-span-3 flex gap-4">
+                                            <select v-model="editQuizData.jawaban_benar" class="p-4 rounded-2xl form-input bg-emerald-50 flex-1">
+                                                <option value="">Pilih Kunci Jawaban</option>
+                                                <option v-for="ans in ['A','B','C','D']" :value="ans">{{ans}}</option>
+                                            </select>
+                                            <button @click="updateQuiz" class="bg-blue-600 text-white px-10 rounded-2xl font-bold">Update</button>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
                         </tbody>
                     </table>
                 </div>
