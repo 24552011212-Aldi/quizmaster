@@ -41,6 +41,57 @@ $query_kategori = mysqli_query($conn, "
     FROM quizzes q
     GROUP BY q.materi
 ");
+
+
+$materi_nama = strtolower($kategori['materi']);
+
+// Mapping Key 
+$icon_map = [
+    'javascript' => 'fa-js text-yellow-400',
+    'js'         => 'fa-js text-yellow-400',
+    'python'     => 'fa-python text-blue-500',
+    'php'        => 'fa-php text-indigo-400',
+    'java'       => 'fa-java text-red-500',
+    'html'       => 'fa-html5 text-orange-500',
+    'css'        => 'fa-css3-alt text-blue-400',
+    'react'      => 'fa-react text-cyan-400',
+    'vue'        => 'fa-vuejs text-emerald-500',
+    'node'       => 'fa-node-js text-green-500',
+    'laravel'    => 'fa-laravel text-red-600',
+    'bootstrap'  => 'fa-bootstrap text-purple-500',
+    'database'   => 'fa-database text-slate-400',
+    'sql'        => 'fa-database text-blue-300',
+    'mysql'      => 'fa-database text-blue-500',
+    'c++'        => 'fa-cuttlefish text-blue-600',
+    'c#'         => 'fa-hashtag text-purple-600',
+    'ruby'       => 'fa-gem text-red-400',
+    'swift'      => 'fa-swift text-orange-600',
+    'docker'     => 'fa-docker text-blue-400',
+    'github'     => 'fa-github text-slate-200',
+    'git'        => 'fa-git-alt text-orange-500',
+    'angular'    => 'fa-angular text-red-600',
+    'figma'      => 'fa-figma text-purple-400',
+    'sass'       => 'fa-sass text-pink-400',
+];
+
+// Default icon jika tidak ditemukan
+$icon_class = 'fa-terminal text-blue-500';
+
+// Cek apakah ada kata kunci yang cocok dalam nama materi
+foreach ($icon_map as $key => $class) {
+    if (stripos($materi_nama, $key) !== false) {
+        $icon_class = $class;
+        break;
+    }
+}
+$total_misi_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM quizzes");
+$total_misi_data = mysqli_fetch_assoc($total_misi_query);
+$total_soal_global = $total_misi_data['total'];
+
+$selesai_query = mysqli_query($conn, "SELECT COUNT(DISTINCT quiz_id) as total FROM quiz_history WHERE user_id = '$user_id'");
+$selesai_data = mysqli_fetch_assoc($selesai_query);
+$total_selesai_global = $selesai_data['total'];
+
 ?>
 
 <!DOCTYPE html>
@@ -78,11 +129,30 @@ $query_kategori = mysqli_query($conn, "
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.8));
+        }
     </style>
 </head>
 
 <body class="text-slate-200 min-h-screen pb-10">
-
     <nav class="glass-card sticky top-0 z-50 px-6 py-4 border-b border-slate-700">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -105,6 +175,24 @@ $query_kategori = mysqli_query($conn, "
     </nav>
 
     <main class="container mx-auto px-6 mt-10">
+
+        <div class="mt-8 mb-12 p-8 rounded-[2.5rem] bg-slate-900/40 border border-white/5 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row gap-8 items-center relative z-10">
+                <div class="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                    <i class="fas fa-user-shield text-3xl text-indigo-400"></i>
+                </div>
+                <div>
+                    <h4 class="text-xl font-black text-white mb-2 uppercase tracking-tight">System Status: <span class="text-indigo-400">Stable</span></h4>
+                    <p class="text-slate-400 leading-relaxed max-w-2xl">
+                        Selamat datang kembali, <span class="text-white font-bold"><?php echo $_SESSION['username']; ?></span>.
+                        Dungeon algoritma telah diperbarui dengan tantangan baru. Ingat, dalam mode <span class="text-red-400 italic font-bold">Roguelike</span>, ketelitian adalah kunci.
+                        Satu kesalahan kecil pada sintaks bisa mengakhiri "perjalanan" kamu. Pilih misimu dengan bijak.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!--EXP collect-->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
             <div class="lg:col-span-2 xp-gradient p-8 rounded-[2.5rem] relative overflow-hidden flex flex-col justify-center min-h-[220px]">
                 <div class="relative z-10">
@@ -112,6 +200,9 @@ $query_kategori = mysqli_query($conn, "
                     <div class="flex items-baseline gap-2">
                         <span class="text-7xl font-black text-white"><?php echo number_format($total_xp); ?></span>
                         <span class="text-2xl font-bold text-blue-200">XP</span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-blue-100/80 mt-2">Misi selesai: <span class="font-bold"><?php echo $total_selesai_global; ?></span> dari <span class="font-bold"><?php echo $total_soal_global; ?></span> total misi.</p>
                     </div>
                 </div>
                 <i class="fas fa-rocket absolute right-[-20px] bottom-[-20px] text-[12rem] text-white/10 -rotate-12"></i>
@@ -145,8 +236,74 @@ $query_kategori = mysqli_query($conn, "
             </div>
         </div>
 
+        <!--live history-->
+        <div class="glass-card p-6 rounded-[2.5rem] mb-6 border-l-4 border-blue-500">
+            <h3 class="text-xs font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                <i class="fas fa-users animate-pulse"></i> Live Quiz Completion
+            </h3>
+            <div id="live-quiz-history" class="space-y-3 font-mono text-[10px]">
+                <div class="text-slate-400">Loading...</div>
+            </div>
+            <script>
+                async function fetchQuizHistory() {
+                    try {
+                        const res = await fetch('api_quiz_history.php');
+                        const data = await res.json();
+                        const container = document.getElementById('live-quiz-history');
+                        if (!Array.isArray(data) || data.length === 0) {
+                            container.innerHTML = '<div class="text-slate-500">Belum ada player yang menyelesaikan quiz.</div>';
+                            return;
+                        }
+                        container.innerHTML = data.map(item => {
+                            let statusColor = item.status === 'DONE' ? 'text-green-400' : 'text-red-500';
+                            let statusText = item.status === 'DONE' ? '[DONE]' : '[FAILED]';
+                            let actionText = item.status === 'DONE' ? 'menyelesaikan' : 'gagal menyelesaikan';
+                            let waktu = item.waktu || item.selesai_pada;
+                            return `<div class="flex gap-2 items-center">` +
+                                `<span class="${statusColor}">${statusText}</span>` +
+                                `<span class="text-slate-300"><b>${item.username}</b> ${actionText} <b>${item.judul}</b> (<span class="text-blue-400">${item.materi}</span>)</span>` +
+                                `<span class="text-slate-500 ml-auto">${new Date(waktu).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>` +
+                                `</div>`;
+                        }).join('');
+                    } catch (e) {
+                        document.getElementById('live-quiz-history').innerHTML = '<div class="text-red-500">Gagal memuat data.</div>';
+                    }
+                }
+                fetchQuizHistory();
+                setInterval(fetchQuizHistory, 10000);
+            </script>
+        </div>
+
+        <!--help center-->
+        <div class="fixed bottom-6 right-6 z-[100] group">
+            <div class="absolute bottom-full right-0 mb-4 w-64 p-4 bg-slate-900 border border-blue-500/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none transform translate-y-2 group-hover:translate-y-0">
+                <p class="text-[10px] font-black text-blue-400 uppercase mb-2">Pro-Tip Agent:</p>
+                <p id="pro-tip-text" class="text-xs text-slate-300 leading-relaxed italic">
+                    "Selalu gunakan strict equality (===) di Javascript untuk menghindari bug tipe data."
+                </p>
+            </div>
+
+            <button onclick="changeTip()" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-blue-600/40 hover:scale-110 transition-transform">
+                <i class="fas fa-headset text-white text-xl"></i>
+            </button>
+        </div>
+
+        <script>
+            const tips = [
+                "Ingat: Array di sebagian besar bahasa pemrograman dimulai dari index 0.",
+                "Gunakan 'git commit -m' untuk memberikan pesan yang jelas pada perubahan kodenya.",
+                "Roguelike Tips: Fokus pada satu bahasa sampai Master sebelum pindah ke dungeon lain.",
+                "DRY: Don't Repeat Yourself. Jika kode diulang, buatlah fungsi!"
+            ];
+
+            function changeTip() {
+                const tipText = document.getElementById('pro-tip-text');
+                tipText.innerText = tips[Math.floor(Math.random() * tips.length)];
+            }
+        </script>
+
         <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tight">
-            <span class="w-2 h-8 bg-blue-600 rounded-full"></span> Available Missions
+            <span class="w-2 h-8 bg-blue-600 rounded-full"></span> Available Dungeons Missions
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -156,23 +313,46 @@ $query_kategori = mysqli_query($conn, "
                 $selesai = $kategori['soal_selesai'];
                 $is_fully_done = ($total > 0 && $total == $selesai);
 
-                // Ikon materi
-                $icon = "fa-code";
-                if (stripos($materi_nama, 'js') !== false || stripos($materi_nama, 'javascript') !== false) $icon = "fa-js";
-                elseif (stripos($materi_nama, 'python') !== false) $icon = "fa-python";
-                elseif (stripos($materi_nama, 'java') !== false) $icon = "fa-java";
-                elseif (stripos($materi_nama, 'php') !== false) $icon = "fa-php";
-                elseif (stripos($materi_nama, 'html') !== false) $icon = "fa-html5";
-                elseif (stripos($materi_nama, 'css') !== false) $icon = "fa-css3-alt";
-                elseif (stripos($materi_nama, 'c++') !== false) $icon = "fa-cuttlefish";
-                elseif (stripos($materi_nama, 'c#') !== false) $icon = "fa-cuttlefish";
-                elseif (stripos($materi_nama, 'ruby') !== false) $icon = "fa-gem";
-                elseif (stripos($materi_nama, 'sql') !== false) $icon = "fa-sql-server";
+                // Ikon materi 
+                $icon_map = [
+                    'javascript' => 'fab fa-js text-yellow-400',
+                    'js'         => 'fab fa-js text-yellow-400',
+                    'python'     => 'fab fa-python text-blue-500',
+                    'php'        => 'fab fa-php text-indigo-400',
+                    'java'       => 'fab fa-java text-red-500',
+                    'html'       => 'fab fa-html5 text-orange-500',
+                    'css'        => 'fab fa-css3-alt text-blue-400',
+                    'react'      => 'fab fa-react text-cyan-400',
+                    'vue'        => 'fab fa-vuejs text-emerald-500',
+                    'node'       => 'fab fa-node-js text-green-500',
+                    'laravel'    => 'fab fa-laravel text-red-600',
+                    'database'   => 'fas fa-database text-slate-400',
+                    'sql'        => 'fas fa-database text-blue-300',
+                    'mysql'      => 'fas fa-database text-blue-500',
+                    'c++'        => 'fab fa-cuttlefish text-blue-600',
+                    'c#'         => 'fas fa-hashtag text-purple-600',
+                    'ruby'       => 'fas fa-gem text-red-400',
+                    'swift'      => 'fab fa-swift text-orange-600',
+                    'docker'     => 'fab fa-docker text-blue-400',
+                    'github'     => 'fab fa-github text-slate-200',
+                    'git'        => 'fab fa-git-alt text-orange-500',
+                    'angular'    => 'fab fa-angular text-red-600',
+                    'figma'      => 'fab fa-figma text-purple-400',
+                    'sass'       => 'fab fa-sass text-pink-400',
+                ];
+                $icon_class = 'fas fa-terminal text-blue-500';
+                foreach ($icon_map as $key => $class) {
+                    if (stripos($materi_nama, $key) !== false) {
+                        $icon_class = $class;
+                        break;
+                    }
+                }
+
             ?>
                 <div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group <?php echo $is_fully_done ? 'opacity-60' : ''; ?>">
                     <div class="h-40 flex items-center justify-center relative overflow-hidden bg-slate-800/30 border-b border-slate-700/50">
-                        <i class="fab <?php echo $icon; ?> text-7xl text-white/5 absolute transform group-hover:scale-125 transition-transform duration-500"></i>
-                        <i class="fab <?php echo $icon; ?> text-5xl text-white relative z-10"></i>
+                        <i class="<?php echo $icon_class; ?> text-7xl absolute transform group-hover:scale-125 transition-transform duration-500 opacity-10"></i>
+                        <i class="<?php echo $icon_class; ?> text-5xl relative z-10"></i>
 
                         <?php if ($is_fully_done): ?>
                             <div class="absolute inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] z-20">
@@ -183,31 +363,68 @@ $query_kategori = mysqli_query($conn, "
                         <?php endif; ?>
                     </div>
 
-                    <div class="p-8">
-                        <h3 class="text-2xl font-black text-white mb-1"><?php echo htmlspecialchars($materi_nama); ?></h3>
+                    <!--QUIZ-->
+                    <div class="group relative bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 transition-all duration-500 hover:border-indigo-500/50 hover:bg-slate-900/60 overflow-hidden">
 
-                        <div class="flex items-center justify-between mb-2 mt-6">
-                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress</span>
-                            <span class="text-[10px] font-black text-slate-300 uppercase"><?php echo $selesai; ?> / <?php echo $total; ?> Solved</span>
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-all"></div>
+
+                        <div class="flex justify-between items-start mb-8 relative z-10">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/5 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/30 transition-all duration-500">
+                                <i class="<?php echo $icon_class ?: 'fas fa-terminal text-blue-500'; ?> text-3xl shadow-glow"></i>
+                            </div>
+
+                            <?php if ($is_fully_done): ?>
+                                <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Done</span>
+                                </div>
+                            <?php else: ?>
+                                <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">
+                                    <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+                                    <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Active</span>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
-                        <div class="w-full h-2 bg-slate-800 rounded-full mb-8 overflow-hidden">
-                            <div class="h-full bg-blue-500 transition-all duration-1000 shadow-[0_0_15px_rgba(59,130,246,0.4)]"
-                                style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%"></div>
-                        </div>
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-black text-white mb-2 tracking-tight group-hover:text-indigo-400 transition-colors">
+                                <?php echo htmlspecialchars($materi_nama); ?>
+                            </h3>
+                            <p class="text-slate-500 text-xs font-medium mb-6">Uji kemampuan algoritma dan logika <?php echo htmlspecialchars($materi_nama); ?> Anda.</p>
 
-                        <?php if (!$is_fully_done): ?>
-                            <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
-                                class="flex items-center justify-between w-full bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/20 group/btn">
-                                <span>Deploy Mission</span>
-                                <i class="fas fa-arrow-right -rotate-45 group-hover/btn:rotate-0 transition-transform"></i>
-                            </a>
-                        <?php else: ?>
-                            <button disabled class="flex items-center justify-center gap-2 w-full bg-slate-800/50 text-slate-500 p-4 rounded-2xl font-bold border border-slate-700/50 cursor-not-allowed">
-                                <i class="fas fa-lock-open text-emerald-500/50"></i>
-                                <span>Mission Cleared</span>
-                            </button>
-                        <?php endif; ?>
+                            <div class="space-y-3 mb-8 bg-slate-800/30 p-4 rounded-2xl border border-white/5">
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Completion Rate</p>
+                                        <p class="text-lg font-black text-white"><?php echo ($total > 0) ? round(($selesai / $total) * 100) : 0; ?><span class="text-xs text-slate-500 ml-0.5">%</span></p>
+                                    </div>
+                                    <p class="text-[10px] font-bold text-slate-400"><?php echo $selesai; ?> <span class="text-slate-600">/</span> <?php echo $total; ?></p>
+                                </div>
+                                <div class="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-indigo-600 to-blue-400 rounded-full transition-all duration-1000 relative"
+                                        style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">12 agents currently deployed</span>
+                            </div>
+                            <?php if (!$is_fully_done): ?>
+                                <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
+                                    class="group/btn relative flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 overflow-hidden">
+                                    <span class="relative z-10 flex items-center gap-2">
+                                        Deploy Mission <i class="fas fa-rocket text-[8px] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
+                                    </span>
+                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                                </a>
+                            <?php else: ?>
+                                <div class="flex items-center justify-center gap-3 w-full bg-slate-800/50 text-slate-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border border-white/5">
+                                    <i class="fas fa-certificate text-emerald-500"></i>
+                                    Mission Cleared
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endwhile; ?>

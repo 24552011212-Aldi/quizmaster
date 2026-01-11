@@ -42,7 +42,6 @@ $query_kategori = mysqli_query($conn, "
         (SELECT COUNT(DISTINCT quiz_id) FROM quiz_history WHERE user_id = '$user_id' AND quiz_id IN (SELECT id FROM quizzes WHERE materi = q.materi)) as soal_selesai
     FROM quizzes q GROUP BY q.materi");
 
-
 // Delete Akun
 if (isset($_POST['delete_account'])) {
     $del_pass = md5($_POST['delete_password']);
@@ -146,4 +145,5 @@ if (isset($_POST['delete_account'])) {
         </div>
     </div>
 </body>
+
 </html>

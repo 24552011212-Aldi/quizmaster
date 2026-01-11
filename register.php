@@ -5,9 +5,17 @@ if (isset($_POST['register'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
 
-    $query = "INSERT INTO users (username, password, role) VALUES ('$username', '$password', 'player')";
-    if (mysqli_query($conn, $query)) {
-        echo "<script>alert('Registrasi Berhasil! Silahkan Login'); window.location='login.php';</script>";
+    // Cek apakah username sudah ada
+    $cek = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username' LIMIT 1");
+    if (mysqli_num_rows($cek) > 0) {
+        echo "<script>alert('Username sudah terdaftar, silakan pilih yang lain!'); window.location='register.php';</script>";
+    } else {
+        $query = "INSERT INTO users (username, password, role) VALUES ('$username', '$password', 'player')";
+        if (mysqli_query($conn, $query)) {
+            echo "<script>alert('Registrasi Berhasil! Silahkan Login'); window.location='login.php';</script>";
+        } else {
+            echo "<script>alert('Terjadi kesalahan saat registrasi!'); window.location='register.php';</script>";
+        }
     }
 }
 ?>
@@ -87,6 +95,24 @@ if (isset($_POST['register'])) {
             </div>
         </div>
     </div>
+    
+    <!-- Mouse Tracking Spotlight -->
+    <div id="mouse-spotlight"
+        class="fixed pointer-events-none rounded-full opacity-0 transition-opacity duration-500 z-[9999]"
+        style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(99, 241, 168, 0.12) 0%, transparent 70%); filter: blur(30px); transform: translate(-50%, -50%); transition: opacity 0.5s, transform 0.1s ease-out;">
+    </div>
+    <script>
+        const spotlight = document.getElementById('mouse-spotlight');
+
+        document.addEventListener('mousemove', e => {
+            // Update posisi & munculkan spotlight
+            spotlight.style.left = `${e.clientX}px`;
+            spotlight.style.top = `${e.clientY}px`;
+            spotlight.style.opacity = '1';
+        });
+
+        document.addEventListener('mouseleave', () => spotlight.style.opacity = '0');
+    </script>
 </body>
 
 </html>

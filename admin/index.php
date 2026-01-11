@@ -21,56 +21,59 @@ if (!isAdmin()) {
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f1f5f9;
+        :root {
+            --admin-primary: #6366f1;
+            --admin-dark: #0f172a;
         }
 
-        /* Sidebar Glassmorphism */
-        .sidebar-glass {
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .sidebar-gradient {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         }
 
-        /* Card Hover Effect */
-        .stat-card {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-
-        /* Table Styling */
-        .table-container {
+ 
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 24px;
-            background: #ffffff;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
         }
 
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
+
+        .stat-card-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
         }
 
-        .custom-scrollbar::-webkit-scrollbar-track {
+        .stat-card-premium:hover {
+            transform: translateY(-8px);
+            border-color: var(--admin-primary);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
+        }
+
+
+        .form-input-premium {
+            @apply transition-all duration-200 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl bg-white/50;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
             background: transparent;
         }
 
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
             border-radius: 10px;
-        }
-
-        /* Animation */
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: opacity 0.3s ease;
-        }
-
-        .fade-enter-from,
-        .fade-leave-to {
-            opacity: 0;
         }
 
         [v-cloak] {
@@ -82,39 +85,45 @@ if (!isAdmin()) {
 <body class="text-slate-800">
     <div id="app" v-cloak class="flex h-screen overflow-hidden bg-slate-50">
 
-        <aside class="w-72 sidebar-glass text-white shadow-2xl z-50 hidden md:flex flex-col">
+        <aside class="w-80 sidebar-gradient text-white shadow-2xl z-50 hidden md:flex flex-col relative">
             <div class="p-8">
-                <div class="flex items-center gap-3 mb-10">
-                    <div class="bg-blue-600 p-2 rounded-xl">
-                        <i class="fas fa-user-shield text-white text-lg"></i>
+                <div class="flex items-center gap-4 mb-12">
+                    <div class="bg-indigo-500 p-3 rounded-2xl shadow-lg shadow-indigo-500/40 rotate-3">
+                        <i class="fas fa-terminal text-white text-xl"></i>
                     </div>
-                    <span class="text-xl font-black tracking-tighter uppercase">Admin<span class="text-blue-500">Hub</span></span>
+                    <div>
+                        <span class="text-xl font-black tracking-tighter uppercase block leading-none">Admin<span class="text-indigo-400">Panel</span></span>
+                        <span class="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">Control Center</span>
+                    </div>
                 </div>
 
-                <nav class="space-y-2">
-                    <div @click="activeTab = 'materi'" :class="activeTab === 'materi' ? 'bg-blue-600 shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="group flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all">
-                        <i class="fas fa-book text-sm"></i>
-                        <span class="font-bold">Manage Materi</span>
-                    </div>
-                    <div @click="activeTab = 'quizzes'" :class="activeTab === 'quizzes' ? 'bg-blue-600 shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="group flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all">
-                        <i class="fas fa-tasks text-sm"></i>
-                        <span class="font-bold">Manage Quizzes</span>
-                    </div>
-                    <div @click="activeTab = 'stats'" :class="activeTab === 'stats' ? 'bg-blue-600 shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="group flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all">
-                        <i class="fas fa-chart-line text-sm"></i>
-                        <span class="font-bold">Player Statistics</span>
+                <nav class="space-y-3">
+                    <div v-for="item in [{id:'materi', icon:'book', label:'Materi'}, {id:'quizzes', icon:'code', label:'Quizzes'}, {id:'stats', icon:'chart-pie', label:'Analytics'}]"
+                        @click="activeTab = item.id"
+                        :class="activeTab === item.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40' : 'text-slate-400 hover:text-white hover:bg-white/5'"
+                        class="group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300">
+                        <i :class="'fas fa-' + item.icon" class="text-lg"></i>
+                        <span class="font-bold tracking-tight">{{ item.label }}</span>
+                        <i v-if="activeTab === item.id" class="fas fa-chevron-right ml-auto text-xs opacity-50"></i>
                     </div>
                 </nav>
             </div>
-            <div class="mt-auto p-8 border-t border-slate-800">
-                <a href="../logout.php" class="flex items-center gap-3 p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all font-bold">
-                    <i class="fas fa-sign-out-alt"></i> Keluar Sistem
+
+            <div class="mt-auto p-8">
+                <div class="bg-white/5 rounded-3xl p-6 border border-white/5 mb-6">
+                    <p class="text-xs text-slate-500 font-bold uppercase mb-2">Logged in as</p>
+                    <p class="text-sm font-bold truncate"><?php echo $_SESSION['username']; ?></p>
+                </div>
+                <a href="../logout.php" class="flex items-center justify-center gap-3 p-4 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-2xl transition-all font-black text-xs uppercase tracking-widest">
+                    <i class="fas fa-power-off"></i> Secure Logout
                 </a>
             </div>
         </aside>
 
         <main class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
 
+
+            <!--OPSI MATERI-->
             <div v-if="activeTab === 'materi'">
                 <header class="flex justify-between items-center mb-10">
                     <div>
@@ -137,7 +146,9 @@ if (!isAdmin()) {
                             </thead>
                             <tbody>
                                 <tr v-for="m in materiList" :key="m" class="border-t">
-                                    <td class="p-5 font-bold">{{ m }}</td>
+                                    <td class="p-5 font-bold flex items-center gap-3">
+                                        <i :class="getMateriIcon(m)" class="text-xl"></i> {{ m }}
+                                    </td>
                                     <td class="p-5 text-right">
                                         <button @click="deleteMateri(m)" class="text-red-500"><i class="fas fa-trash"></i></button>
                                     </td>
@@ -151,6 +162,7 @@ if (!isAdmin()) {
                 </div>
             </div>
 
+            <!--QUIZ-->
             <div v-if="activeTab === 'quizzes'">
                 <header class="flex justify-between items-center mb-10">
                     <div>
@@ -181,7 +193,33 @@ if (!isAdmin()) {
                             </div>
                             <textarea v-model="newQuiz.soal" placeholder="Pertanyaan..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
                         </div>
-                        <textarea v-model="newQuiz.snippet" placeholder="Code Snippet..." class="p-4 w-full rounded-2xl form-input bg-slate-900 text-emerald-400 font-mono text-sm"></textarea>
+
+                        <div class="md:col-span-3 lg:col-span-1">
+                            <div class="relative bg-[#1e2235] p-8 rounded-[2.5rem] shadow-2xl border border-white/5 group">
+
+                                <div class="flex gap-2 mb-8 px-2">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] shadow-lg shadow-red-500/20"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] shadow-lg shadow-amber-500/20"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] shadow-lg shadow-emerald-500/20"></div>
+                                </div>
+
+                                <div class="relative">
+                                    <div class="absolute -inset-2 bg-indigo-500/10 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+
+                                    <textarea
+                                        v-model="newQuiz.snippet"
+                                        placeholder="// Tulis atau tempel kode di sini..."
+                                        class="relative w-full h-[320px] bg-transparent text-[#e1e4e8] font-mono text-sm leading-relaxed outline-none resize-none custom-scrollbar spell-none"
+                                        style="color: #9cdceb;"
+                                        spellcheck="false"></textarea>
+                                </div>
+
+                                <div class="absolute bottom-6 right-8 opacity-20 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-terminal text-xs text-indigo-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <input v-for="opt in ['a','b','c','d']" :key="opt" v-model="newQuiz['opsi_'+opt]" type="text" :placeholder="'Opsi ' + opt.toUpperCase()" class="p-4 rounded-2xl form-input bg-slate-50">
                         </div>
@@ -195,11 +233,46 @@ if (!isAdmin()) {
                     </div>
                 </div>
 
-                <div v-else class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-10">
-                    <textarea v-model="bulkText" placeholder='Format [{"judul":"..", "materi":"..", "soal":"..", "opsi_a":"..", "opsi_b":"..", "opsi_c":"..", "opsi_d":"..", "jawaban_benar":"A", "score":10}]' class="p-6 w-full rounded-3xl form-input bg-slate-900 text-blue-400 font-mono h-64 mb-6"></textarea>
-                    <button @click="importBulk" class="w-full bg-emerald-600 text-white font-bold py-5 rounded-2xl">Import</button>
-                </div>
+                <!--BULK IMPORT-->
+                <div v-else class="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div class="relative bg-[#1e2235] p-8 rounded-[2.5rem] shadow-2xl border border-white/5 group">
 
+                        <div class="flex items-center justify-between mb-8 px-2">
+                            <div class="flex gap-2">
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] shadow-lg shadow-red-500/20"></div>
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] shadow-lg shadow-amber-500/20"></div>
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] shadow-lg shadow-emerald-500/20"></div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Batch_Importer.json</span>
+                                <a href="./bulk_quiz_format.json" download class="ml-3 px-3 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition-all border border-emerald-200 flex items-center gap-1">
+                                    <i class="fas fa-download"></i> Download Format
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div class="absolute -inset-4 bg-blue-500/5 blur-3xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+
+                            <textarea
+                                v-model="bulkText"
+                                placeholder='[{"judul": "Syntax Master", "materi": "PHP", ...}]'
+                                class="relative w-full h-80 bg-transparent text-blue-300 font-mono text-sm leading-relaxed outline-none resize-none custom-scrollbar"
+                                spellcheck="false"></textarea>
+                        </div>
+
+                        <div class="absolute bottom-6 right-8 opacity-40">
+                            <span class="text-[9px] font-black text-slate-500 border border-slate-700 px-2 py-1 rounded">JSON ARRAY</span>
+                        </div>
+                    </div>
+
+                    <button @click="importBulk"
+                        class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-5 rounded-[2rem] hover:shadow-2xl hover:shadow-emerald-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <i class="fas fa-layer-group"></i>
+                        LAUNCH BATCH IMPORT
+                    </button>
+                </div>
                 <div class="bg-white rounded-[2rem] border overflow-hidden mb-6">
                     <div class="flex gap-4 p-5">
                         <select v-model="selectedMateri" class="p-4 rounded-2xl form-input bg-slate-50">
@@ -262,86 +335,103 @@ if (!isAdmin()) {
                 </div>
             </div>
 
-            <div v-if="activeTab === 'stats'">
-                <header class="mb-10">
-                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Player Performance</h1>
-                    <p class="text-slate-500 font-medium">Monitoring performa dan total skor seluruh pemain.</p>
+            <!--DATA-->
+            <div v-if="activeTab === 'stats'" class="animate-in fade-in duration-500">
+                <header class="mb-12">
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tighter mb-2">Performance <span class="text-indigo-600">Overview</span></h1>
+                    <p class="text-slate-500 font-medium">Monitoring real-time aktivitas dan skor pemain.</p>
                 </header>
-                <div class="mb-6 flex gap-4">
-                    <a href="../server/export_excel.php" class="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-sm">
-                        <i class="fas fa-file-excel"></i> Ekspor ke Excel
-                    </a>
-                    <a href="../server/export_pdf.php" class="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-red-700 transition-all shadow-sm">
-                        <i class="fas fa-file-pdf"></i> Ekspor ke PDF
-                    </a>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
-                                <i class="fas fa-users text-xl"></i>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="glass-panel p-8 stat-card-premium border-l-4 border-l-indigo-500">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total Player</div>
-                                <div class="text-3xl font-black text-slate-900">{{ playerStats.length }}</div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Players</p>
+                                <h3 class="text-4xl font-black text-slate-900 tracking-tighter">{{ playerStats.length }}</h3>
                             </div>
+                            <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-500"><i class="fas fa-users-viewfinder"></i></div>
                         </div>
                     </div>
-                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600">
-                                <i class="fas fa-chart-line text-xl"></i>
-                            </div>
+
+                    <div class="glass-panel p-8 stat-card-premium border-l-4 border-l-emerald-500">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Global Avg Score</div>
-                                <div class="text-3xl font-black text-emerald-600">{{ averageScore }} <span class="text-sm font-bold text-slate-400">XP</span></div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Average XP</p>
+                                <h3 class="text-4xl font-black text-emerald-600 tracking-tighter">{{ averageScore }}</h3>
                             </div>
+                            <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-500"><i class="fas fa-bolt"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 stat-card-premium border-l-4 border-l-amber-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Score</p>
+                                <h3 class="text-4xl font-black text-slate-900 tracking-tighter">
+                                    {{ playerStats.length > 0 ? playerStats.reduce((acc, p) => acc + (Number(p.total_score) || 0), 0).toLocaleString() : 0 }}
+                                </h3>
+                            </div>
+                            <div class="p-3 bg-amber-50 rounded-2xl text-amber-500"><i class="fas fa-crown"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+                <div class="flex flex-wrap gap-4 mb-8 justify-between items-center">
+                    <div class="flex gap-4">
+                        <a href="../server/export_excel.php" class="bg-[#1D6F42] text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg flex items-center gap-2">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </a>
+                        <a href="../server/export_pdf.php" class="bg-[#E92224] text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg flex items-center gap-2">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="glass-panel overflow-hidden border border-slate-200">
                     <table class="w-full">
-                        <thead class="bg-slate-50/50 border-b border-slate-100">
+                        <thead class="bg-slate-50/80 border-b border-slate-200">
                             <tr>
-                                <th class="p-6 text-left text-[10px] font-black text-slate-400 uppercase">Player Name</th>
-                                <th class="p-6 text-center text-[10px] font-black text-slate-400 uppercase">Kuis Dikerjakan</th>
-                                <th class="p-6 text-center text-[10px] font-black text-slate-400 uppercase">Total XP</th>
-                                <th class="p-6 text-right text-[10px] font-black text-slate-400 uppercase">Aktivitas</th>
+                                <th class="p-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rank & Player</th>
+                                <th class="p-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Missions</th>
+                                <th class="p-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Score</th>
+                                <th class="p-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operations</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <tr v-for="p in playerStats" :key="p.id" class="hover:bg-slate-50/80 transition-all">
+                            <tr v-for="(p, index) in playerStats" :key="p.id" class="hover:bg-indigo-50/30 transition-all group">
                                 <td class="p-6">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-500 uppercase">
-                                            {{ p.username.charAt(0) }}
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-xs font-black text-slate-300">#{{ index + 1 }}</span>
+                                        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center font-black text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                            {{ p.username.charAt(0).toUpperCase() }}
                                         </div>
-                                        <span class="font-bold text-slate-800">{{ p.username }}</span>
+                                        <div>
+                                            <p class="font-bold text-slate-900">{{ p.username }}</p>
+                                            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black">{{ p.terakhir_main || 'No Activity' }}</p>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="p-6 text-center">
-                                    <span class="px-3 py-1 bg-slate-100 rounded-lg font-bold text-slate-600 text-sm">{{ p.total_kuis }}</span>
+                                    <span class="px-4 py-2 bg-slate-100 rounded-xl font-bold text-slate-600 text-xs border border-slate-200">
+                                        {{ p.total_kuis }} Quiz
+                                    </span>
                                 </td>
                                 <td class="p-6 text-center">
-                                    <span class="font-black text-blue-600">{{ p.total_score.toLocaleString() }} XP</span>
+                                    <div class="inline-flex items-center gap-2 text-indigo-600 font-black">
+                                        <span>{{ p.total_score.toLocaleString() }}</span>
+                                        <span class="text-[10px] text-indigo-300">XP</span>
+                                    </div>
                                 </td>
                                 <td class="p-6 text-right">
-                                    <span class="text-xs text-slate-400 italic">{{ p.terakhir_main }}</span>
-                                </td>
-                            </tr>
-                            <tr v-if="playerStats.length === 0">
-                                <td colspan="4" class="p-20 text-center text-slate-400">
-                                    <i class="fas fa-user-slash text-4xl mb-4 block opacity-20"></i>
-                                    Belum ada player yang terdaftar atau mengerjakan kuis.
+                                    <button @click="deleteAccount(p.id)" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </main>
     </div>
 
@@ -426,8 +516,7 @@ if (!isAdmin()) {
 
                 const averageScore = computed(() => {
                     if (!playerStats.value || playerStats.value.length === 0) return 0;
-                    const total = playerStats.value.reduce((acc, curr) => acc + (Number(curr.total_score) || 0), 0);
-                    return Math.floor(total / playerStats.value.length);
+                    return playerStats.value.reduce((acc, curr) => acc + (Number(curr.total_kuis) || 0), 0);
                 });
 
                 const addQuiz = async () => {
@@ -454,7 +543,9 @@ if (!isAdmin()) {
                 };
 
                 const showEditQuiz = (quiz) => {
-                    editQuizData.value = { ...quiz };
+                    editQuizData.value = {
+                        ...quiz
+                    };
                     editQuizModal.value = true;
                 };
 
@@ -481,6 +572,26 @@ if (!isAdmin()) {
                             method: 'DELETE'
                         });
                         fetchQuizzes();
+                    }
+                };
+
+                const deleteAccount = async (id) => {
+                    if (confirm("Hapus akun player ini?")) {
+                        try {
+                            const res = await fetch(`../server/admin/delete_user.php?id=${id}`, {
+                                method: 'DELETE'
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                alert('Akun player berhasil dihapus!');
+                                fetchStats();
+                            } else {
+                                alert('Gagal menghapus akun: ' + (data.error || 'Unknown error'));
+                                fetchStats();
+                            }
+                        } catch (e) {
+                            alert('Terjadi kesalahan koneksi saat menghapus akun!');
+                        }
                     }
                 };
 
@@ -513,6 +624,41 @@ if (!isAdmin()) {
                     fetchStats();
                 });
 
+                // Mapping materi ke ikon FontAwesome
+                function getMateriIcon(materi) {
+                    const map = {
+                        'javascript': 'fab fa-js text-yellow-400',
+                        'js': 'fab fa-js text-yellow-400',
+                        'python': 'fab fa-python text-blue-500',
+                        'php': 'fab fa-php text-indigo-400',
+                        'java': 'fab fa-java text-red-500',
+                        'html': 'fab fa-html5 text-orange-500',
+                        'css': 'fab fa-css3-alt text-blue-400',
+                        'react': 'fab fa-react text-cyan-400',
+                        'vue': 'fab fa-vuejs text-emerald-500',
+                        'node': 'fab fa-node-js text-green-500',
+                        'laravel': 'fab fa-laravel text-red-600',
+                        'database': 'fas fa-database text-slate-400',
+                        'sql': 'fas fa-database text-blue-300',
+                        'mysql': 'fas fa-database text-blue-500',
+                        'c++': 'fab fa-cuttlefish text-blue-600',
+                        'c#': 'fas fa-hashtag text-purple-600',
+                        'ruby': 'fas fa-gem text-red-400',
+                        'swift': 'fab fa-swift text-orange-600',
+                        'docker': 'fab fa-docker text-blue-400',
+                        'github': 'fab fa-github text-slate-200',
+                        'git': 'fab fa-git-alt text-orange-500',
+                        'angular': 'fab fa-angular text-red-600',
+                        'figma': 'fab fa-figma text-purple-400',
+                        'sass': 'fab fa-sass text-pink-400',
+                    };
+                    const lower = (materi || '').toLowerCase();
+                    for (const key in map) {
+                        if (lower.includes(key)) return map[key];
+                    }
+                    return 'fas fa-terminal text-blue-500';
+                }
+
                 return {
                     activeTab,
                     mode,
@@ -531,12 +677,14 @@ if (!isAdmin()) {
                     deleteMateri,
                     selectedMateri,
                     filteredQuizzes,
+                    getMateriIcon,
                     // Edit Quiz
                     editQuizModal,
                     editQuizData,
                     showEditQuiz,
                     closeEditQuiz,
-                    updateQuiz
+                    updateQuiz,
+                    deleteAccount
                 };
             }
         }).mount('#app');

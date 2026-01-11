@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+
     if ($res_leaderboard && $success_history) {
         echo json_encode([
             'status' => 'success',

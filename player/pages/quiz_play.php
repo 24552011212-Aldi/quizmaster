@@ -27,7 +27,7 @@ if (count($soal_list) == 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeMaster - Playing <?php echo htmlspecialchars($materi); ?></title>
+    <title>CodeMaster - Rogue Run: <?php echo htmlspecialchars($materi); ?></title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -37,7 +37,8 @@ if (count($soal_list) == 0) {
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0f172a;
+            background-color: #020617;
+            /* Lebih gelap untuk tema Roguelike */
         }
 
         .mono {
@@ -45,107 +46,107 @@ if (count($soal_list) == 0) {
         }
 
         .glass {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Animasi Transisi Soal */
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: all 0.4s ease;
+        /* Efek Shake jika salah jawab */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
         }
 
-        .fade-enter-from {
-            opacity: 0;
-            transform: translateX(30px);
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
         }
 
-        .fade-leave-to {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-
-        .btn-option {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-option:hover {
-            transform: translateX(8px);
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.5);
+        .hp-bar {
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
 
 <body class="text-slate-200 min-h-screen overflow-x-hidden">
 
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full"></div>
-    </div>
+    <div id="app" class="max-w-4xl mx-auto px-6 py-12 min-h-screen flex flex-col" :class="{ 'shake': isWrong }">
 
-    <div id="app" class="max-w-4xl mx-auto px-6 py-12 min-h-screen flex flex-col">
-        <transition name="fade" mode="out-in">
-            <div v-if="showImage" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/90 backdrop-blur-xl p-6">
-                <div class="max-w-md w-full text-center">
-                    <div class="relative inline-block mb-6">
-                        <img src="https://media.tenor.com/gNgtEpVk_fUAAAAM/prabowo-wowo.gif"
-                            class="rounded-[2rem] shadow-2xl border-4 border-blue-500/30 animate-float" alt="Great Job!">
-
-                        <div class="absolute -top-6 -right-6 bg-yellow-400 text-slate-900 font-black px-4 py-2 rounded-xl rotate-12 shadow-lg">
-                            HIDUP! 🔥
-                        </div>
-                    </div>
-
-                    <h2 class="text-3xl font-black text-white mb-2">KERJA BAGUS!</h2>
-                    <p class="text-slate-400 mb-8 font-medium">Kamu sudah menyelesaikan 5 soal. Istirahat sejenak sebelum lanjut ke tantangan berikutnya!</p>
-
-                    <button @click="closeImage" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-600/40">
-                        LANJUTKAN MISI <i class="fas fa-chevron-right ml-2"></i>
-                    </button>
+        <div class="flex justify-between items-center mb-8 bg-slate-900/50 p-6 rounded-3xl border border-white/5 shadow-2xl">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <i class="fas fa-heart text-red-500 text-3xl"></i>
+                    <span class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">{{ lives }}</span>
+                </div>
+                <div class="w-32 h-3 bg-slate-800 rounded-full overflow-hidden border border-white/10">
+                    <div class="hp-bar h-full bg-gradient-to-r from-red-600 to-pink-500" :style="{ width: (lives/3)*100 + '%' }"></div>
                 </div>
             </div>
-            <div v-if="!finished" :key="currentStep" class="flex-1 flex flex-col">
-                <div class="flex justify-between items-end mb-8">
-                    <div>
-                        <span class="text-blue-500 font-extrabold tracking-[0.2em] text-xs uppercase mb-1 block">Mission: <?php echo htmlspecialchars($materi); ?></span>
-                        <h1 class="text-3xl font-black text-white">Question {{ currentStep + 1 }}<span class="text-slate-500 text-lg font-medium">/{{ soal.length }}</span></h1>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Current XP</p>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-bolt text-yellow-400"></i>
-                            <span class="text-3xl font-black text-white tracking-tighter">{{ totalScore }}</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="w-full h-1.5 bg-slate-800 rounded-full mb-12 overflow-hidden flex">
-                    <div class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-700"
-                        :style="{ width: ((currentStep + 1) / soal.length) * 100 + '%' }"></div>
-                </div>
+            <div class="text-center">
+                <span class="text-[10px] text-slate-500 font-black tracking-widest block uppercase">Floor</span>
+                <span class="text-2xl font-black text-blue-500 mono">{{ currentStep + 1 }}</span>
+            </div>
 
-                <div class="glass p-8 md:p-12 rounded-[2rem] shadow-2xl relative overflow-hidden mb-8 border border-white/5">
+            <div class="text-right">
+                <span class="text-[10px] text-slate-500 font-black tracking-widest block uppercase">XP Collected</span>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-400 animate-pulse"></i>
+                    <span class="text-2xl font-black text-white">{{ totalScore }}</span>
+                </div>
+            </div>
+        </div>
+
+        <transition name="fade" mode="out-in">
+            <div v-if="gameOver" class="flex-1 flex flex-col items-center justify-center py-12">
+                <div class="glass p-12 rounded-[3rem] text-center max-w-md w-full border-red-500/30 border-2">
+                    <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-red-600/40">
+                        <i class="fas fa-skull text-4xl text-white"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white mb-2">YOU DIED</h2>
+                    <p class="text-slate-400 mb-8 text-sm">"Algoritma ini terlalu susah untukmu..."</p>
+                    <p class="text-slate-400 mb-8">Belajar lagi... ~(˘▾˘~)</p>
+                    <a href="dashboard_player.php" class="block w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-slate-200 transition-all">
+                        TRY NEW RUN
+                    </a>
+                </div>
+            </div>
+
+            <div v-else-if="!finished" :key="currentStep" class="flex-1 flex flex-col">
+                <div class="glass p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden mb-8 border border-white/5">
                     <div class="relative z-10">
-                        <p class="text-xl md:text-2xl font-semibold leading-relaxed text-white mb-8">
+                        <p class="text-xl md:text-2xl font-bold leading-relaxed text-white mb-8">
                             {{ soal[currentStep].soal }}
                         </p>
 
-                        <div v-if="soal[currentStep].snippet" class="rounded-2xl overflow-hidden border border-slate-700 shadow-inner mb-8 group">
-                            <div class="bg-slate-800/50 px-4 py-2 flex gap-1.5 border-b border-slate-700">
-                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
-                            </div>
-                            <pre class="!m-0 !bg-[#011627] !p-6 mono text-sm leading-relaxed overflow-x-auto"><code>{{ soal[currentStep].snippet }}</code></pre>
+                        <div v-if="soal[currentStep].snippet" class="rounded-2xl overflow-hidden border border-slate-700 shadow-inner mb-8">
+                            <pre class="!m-0 !bg-[#011627] !p-6 mono text-sm overflow-x-auto"><code>{{ soal[currentStep].snippet }}</code></pre>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <button v-for="opt in ['a','b','c','d']" :key="opt"
                                 @click="handleAnswer(opt.toUpperCase())"
-                                class="btn-option group p-5 rounded-2xl border border-slate-700 bg-slate-800/40 text-left flex items-center gap-5 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-                                <span class="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 font-black text-blue-500 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-400 transition-all uppercase">
+                                :disabled="isWrong"
+                                class="group p-5 rounded-2xl border border-slate-700 bg-slate-800/20 text-left flex items-center gap-5 hover:border-blue-500 hover:bg-blue-500/5 transition-all">
+                                <span class="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 font-black text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-all uppercase">
                                     {{ opt }}
                                 </span>
                                 <span class="text-slate-300 group-hover:text-white font-medium">{{ soal[currentStep]['opsi_' + opt] }}</span>
@@ -156,29 +157,18 @@ if (count($soal_list) == 0) {
             </div>
 
             <div v-else class="flex-1 flex flex-col items-center justify-center py-12">
-                <div class="glass p-12 rounded-[3rem] text-center max-w-md w-full relative shadow-2xl border border-white/10">
-                    <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-blue-600 rounded-[2rem] rotate-12 flex items-center justify-center shadow-xl shadow-blue-500/40">
-                        <i class="fas fa-trophy text-4xl text-white -rotate-12"></i>
+                <div class="glass p-12 rounded-[3rem] text-center max-w-md w-full border-green-500/30 border-2">
+                    <div class="w-24 h-24 bg-green-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-600/40 animate-bounce">
+                        <i class="fas fa-crown text-4xl text-white"></i>
                     </div>
-
-                    <h2 class="text-4xl font-black text-white mt-8 mb-2">Victory!</h2>
-                    <p class="text-slate-400 mb-10 italic">"Mission completed successfully. You earned more experience points."</p>
-
-                    <div class="bg-slate-900/50 rounded-2xl p-6 border border-slate-700/50 mb-10">
-                        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Final Experience Points</p>
-                        <div class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
-                            {{ totalScore }}
-                        </div>
+                    <h2 class="text-4xl font-black text-white mb-2">SURVIVED!</h2>
+                    <p class="text-slate-400 mb-8 italic">Kamu MC! Dungeon berhasil ditaklukkan.</p>
+                    <p class="text-slate-400 mb-8">ヾ(⌐■_■)ノ♪</p>
+                    <div class="bg-slate-900/50 rounded-2xl p-6 mb-8 border border-white/5">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Final XP</p>
+                        <div class="text-5xl font-black text-green-400">{{ totalScore }}</div>
                     </div>
-
-                    <div class="flex flex-col gap-4">
-                        <button onclick="location.reload()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-600/20">
-                            Play Again
-                        </button>
-                        <a href="dashboard_player.php" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl transition-all border border-slate-700 text-center">
-                            Back to Base
-                        </a>
-                    </div>
+                    <a href="dashboard_player.php" class="block w-full py-4 bg-green-600 text-white font-black rounded-2xl">EXIT BASE</a>
                 </div>
             </div>
         </transition>
@@ -198,10 +188,10 @@ if (count($soal_list) == 0) {
                 const soal = ref(<?php echo json_encode($soal_list); ?>);
                 const currentStep = ref(0);
                 const totalScore = ref(0);
+                const lives = ref(3); // Sistem Nyawa Roguelike
                 const finished = ref(false);
-                const showImage = ref(false);
-
-                const completedQuizIds = soal.value.map(s => s.id);
+                const gameOver = ref(false);
+                const isWrong = ref(false);
 
                 const highlightCode = () => {
                     nextTick(() => {
@@ -210,16 +200,35 @@ if (count($soal_list) == 0) {
                 };
 
                 const handleAnswer = (userAns) => {
-                    // Cek Jawaban & Tambah Skor
                     if (userAns === soal.value[currentStep.value].jawaban_benar) {
+                        // Benar: Tambah XP
                         totalScore.value += parseInt(soal.value[currentStep.value].score);
-                    }
-
-                    // Logika Munculkan Gambar setiap selesai 5 soal
-                    if ((currentStep.value + 1) % 5 === 0 && (currentStep.value + 1) < soal.value.length) {
-                        showImage.value = true;
-                    } else {
                         nextQuestion();
+                    } else {
+                        // Salah: Kurangi Nyawa & Shake Efek
+                        lives.value--;
+                        isWrong.value = true;
+
+                        setTimeout(async () => {
+                            isWrong.value = false;
+                            if (lives.value <= 0) {
+                                gameOver.value = true;
+                                // Kirim data kegagalan ke server
+                                try {
+                                    await fetch('api_quiz_fail.php', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            quiz_id: soal.value[currentStep.value].id
+                                        })
+                                    });
+                                } catch (e) {}
+                            } else {
+                                nextQuestion();
+                            }
+                        }, 500);
                     }
                 };
 
@@ -232,28 +241,23 @@ if (count($soal_list) == 0) {
                     }
                 };
 
-                const closeImage = () => {
-                    showImage.value = false;
-                    nextQuestion();
-                };
-
                 const submitFinalResults = async () => {
                     finished.value = true;
+                    // Kirim XP dan quiz_ids ke server untuk lock quiz
                     try {
-                        const response = await fetch('../../server/api_score.php', {
+                        const quizIds = soal.value.map(q => q.id);
+                        await fetch('../../server/api_score.php', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                quiz_ids: completedQuizIds,
-                                skor_akhir: totalScore.value
+                                skor_akhir: totalScore.value,
+                                quiz_ids: quizIds
                             })
                         });
-                        const result = await response.json();
-                        console.log("Progress Saved:", result.message);
                     } catch (e) {
-                        console.error("Critical Error:", e);
+                        // Optional: tampilkan error jika gagal
                     }
                 };
 
@@ -263,10 +267,11 @@ if (count($soal_list) == 0) {
                     soal,
                     currentStep,
                     totalScore,
+                    lives,
                     finished,
-                    showImage,
-                    handleAnswer,
-                    closeImage
+                    gameOver,
+                    isWrong,
+                    handleAnswer
                 };
             }
         }).mount('#app');

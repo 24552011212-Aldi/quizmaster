@@ -114,60 +114,116 @@
 
     <section class="py-20 border-t border-white/5 bg-slate-900/50">
         <div class="container mx-auto px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-                <div>
-                    <h4 class="text-4xl font-black text-white mb-2">500+</h4>
-                    <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Questions</p>
-                </div>
-                <div>
-                    <h4 class="text-4xl font-black text-white mb-2">10+</h4>
-                    <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Languages</p>
-                </div>
-                <div>
-                    <h4 class="text-4xl font-black text-white mb-2">1.2k</h4>
-                    <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Active Users</p>
-                </div>
-                <div>
-                    <h4 class="text-4xl font-black text-white mb-2">24/7</h4>
-                    <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Learning</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <section class="py-32 container mx-auto px-8">
-        <div class="text-center mb-20">
-            <h2 class="text-4xl font-black text-white mb-4">MENGAPA CODEMASTER?</h2>
-            <p class="text-slate-500 max-w-lg mx-auto font-medium">Belajar coding tidak pernah seseru ini sebelumnya.</p>
-        </div>
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-blue-500/50 transition-all group">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-brain text-white text-2xl"></i>
+            <h1 class="text-6xl lg:text-7xl font-black text-white leading-none mb-6 text-center">
+                THE ULTIMATE <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">ROGUELIKE QUIZ</span>
+            </h1>
+            <p class="text-lg text-slate-400 mb-10 max-w-lg leading-relaxed mx-auto text-center">
+                Satu kesalahan berarti maut. Hadapi kuis yang diacak secara prosedural, kumpulkan <span class="text-blue-400 font-bold">EXP</span>, dan capai puncak
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                <div class="flex gap-4 p-4">
+                    <div class="text-red-500 mt-1"><i class="fas fa-skull-crossbones text-2xl"></i></div>
+                    <div>
+                        <h5 class="text-white font-black text-sm uppercase">Permadeath</h5>
+                        <p class="text-slate-500 text-xs mt-1 leading-relaxed">Hanya punya 3 nyawa per game. Jika habis, XP lantai tersebut hangus.</p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-4">Adaptive Learning</h3>
-                <p class="text-slate-400 leading-relaxed text-sm">Soal diacak dan disesuaikan untuk melatih logika berpikir secara mendalam.</p>
-            </div>
-            <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-purple-500/50 transition-all group">
-                <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-medal text-white text-2xl"></i>
+                <div class="flex gap-4 p-4">
+                    <div class="text-yellow-500 mt-1"><i class="fas fa-random text-2xl"></i></div>
+                    <div>
+                        <h5 class="text-white font-black text-sm uppercase">Procedural Deck</h5>
+                        <p class="text-slate-500 text-xs mt-1 leading-relaxed">Urutan soal diacak setiap kali kamu menekan tombol 'Deploy'.</p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-4">Leaderboard System</h3>
-                <p class="text-slate-400 leading-relaxed text-sm">Bersaing dengan developer lain dari seluruh dunia dan jadilah nomor satu.</p>
-            </div>
-            <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-cyan-500/50 transition-all group">
-                <div class="w-14 h-14 bg-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-code-branch text-white text-2xl"></i>
+                <div class="flex gap-4 p-4">
+                    <div class="text-blue-500 mt-1"><i class="fas fa-dna text-2xl"></i></div>
+                    <div>
+                        <h5 class="text-white font-black text-sm uppercase">Skill Progression</h5>
+                        <p class="text-slate-500 text-xs mt-1 leading-relaxed">XP yang terkumpul akan menentukan peringkatmu di Global Leaderboard.</p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-4">Multi-Language</h3>
-                <p class="text-slate-400 leading-relaxed text-sm">Tersedia kuis untuk JavaScript, Python, PHP, Java, C++, dan masih banyak lagi.</p>
             </div>
-        </div>
-    </section>
 
-    <footer class="py-10 text-center border-t border-white/5 text-slate-600 text-sm font-bold uppercase tracking-widest">
-        &copy; Aldi alfariz 24552011212 - CodeMaster 2024
-    </footer>
+            <section class="py-20 border-t border-white/5 bg-slate-900/50">
+                <div class="container mx-auto px-8">
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <h4 class="text-4xl font-black text-white mb-2">500+</h4>
+                            <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Questions</p>
+                        </div>
+                        <div>
+                            <h4 class="text-4xl font-black text-white mb-2">10+</h4>
+                            <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Languages</p>
+                        </div>
+                        <div>
+                            <h4 class="text-4xl font-black text-white mb-2">1.2k</h4>
+                            <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Active Users</p>
+                        </div>
+                        <div>
+                            <h4 class="text-4xl font-black text-white mb-2">24/7</h4>
+                            <p class="text-slate-500 font-bold uppercase text-xs tracking-widest">Learning</p>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="mt-20 py-20 border-t border-white/5 bg-slate-900/50">
+                    <div class="container mx-auto px-8">
+                </section>
+
+                <section class="container mx-auto px-8">
+                    <div class="text-center mb-20">
+                        <h2 class="text-4xl font-black text-white mb-4">MENGAPA CODEMASTER?</h2>
+                        <p class="text-slate-500 max-w-lg mx-auto font-medium">Belajar coding tidak pernah seseru ini sebelumnya.</p>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-blue-500/50 transition-all group">
+                            <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-brain text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-4">Adaptive Learning</h3>
+                            <p class="text-slate-400 leading-relaxed text-sm">Soal diacak dan disesuaikan untuk melatih logika berpikir secara mendalam.</p>
+                        </div>
+                        <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-purple-500/50 transition-all group">
+                            <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-medal text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-4">Leaderboard System</h3>
+                            <p class="text-slate-400 leading-relaxed text-sm">Bersaing dengan developer lain dari seluruh dunia dan jadilah nomor satu.</p>
+                        </div>
+                        <div class="bg-slate-800/30 p-10 rounded-[2.5rem] border border-white/5 hover:border-cyan-500/50 transition-all group">
+                            <div class="w-14 h-14 bg-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-code-branch text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-4">Multi-Language</h3>
+                            <p class="text-slate-400 leading-relaxed text-sm">Tersedia kuis untuk JavaScript, Python, PHP, Java, C++, dan masih banyak lagi.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="py-10 text-center border-t border-white/5 text-slate-600 text-sm font-bold uppercase tracking-widest bottom-0 w-full bg-slate-900/50">
+                    &copy; Aldi alfariz 24552011212 - CodeMaster 2026
+                </footer>
+
+                <!-- Mouse Tracking Spotlight -->
+                <div id="mouse-spotlight"
+                    class="fixed pointer-events-none rounded-full opacity-0 transition-opacity duration-500 z-[9999]"
+                    style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%); filter: blur(30px); transform: translate(-50%, -50%); transition: opacity 0.5s, transform 0.1s ease-out;">
+                </div>
+                <script>
+                    const spotlight = document.getElementById('mouse-spotlight');
+
+                    document.addEventListener('mousemove', e => {
+                        // Update posisi & munculkan spotlight
+                        spotlight.style.left = `${e.clientX}px`;
+                        spotlight.style.top = `${e.clientY}px`;
+                        spotlight.style.opacity = '1';
+                    });
+
+                    document.addEventListener('mouseleave', () => spotlight.style.opacity = '0');
+                </script>
 
 </body>
 

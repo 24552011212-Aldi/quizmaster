@@ -8,19 +8,21 @@ session_start();
 include "config/koneksi.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $data = json_decode(file_get_contents("php://input"));
-
-    // Ambil data dari session dan input
-    $user_id = $_SESSION['user_id'];
-    $username = $_SESSION['username'];
-    $skor = $data->score;
-
-    // Simpan ke database
-    $query = "INSERT INTO leaderboard (user_id, username, skor_akhir) VALUES ('$user_id', '$username', '$skor')";
-
-    if (mysqli_query($conn, $query)) {
-        echo json_encode(["message" => "Skor berhasil disimpan ke leaderboard!"]);
-    } else {
-        echo json_encode(["message" => "Gagal simpan skor"]);
+    // Forward request to api_score.php for unified logic
+    $input = file_get_contents("php://input");
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . "/api_score.php");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $input);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    // Pass session cookie
+    if (isset($_COOKIE[session_name()])) {
+        curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . $_COOKIE[session_name()]);
     }
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    http_response_code($httpcode);
+    echo $response;
 }

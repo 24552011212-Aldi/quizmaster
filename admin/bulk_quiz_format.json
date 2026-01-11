@@ -1,0 +1,14 @@
+[
+  {
+    "judul": "Contoh Judul Quiz",
+    "materi": "Contoh Materi",
+    "soal": "Apa hasil dari 2 + 2?",
+    "snippet": "(opsional)",
+    "opsi_a": "3",
+    "opsi_b": "4",
+    "opsi_c": "5",
+    "opsi_d": "6",
+    "jawaban_benar": "A",
+    "score": 10
+  }
+]
