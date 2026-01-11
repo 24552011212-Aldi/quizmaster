@@ -116,8 +116,8 @@
         <div class="container mx-auto px-8">
 
             <h1 class="text-6xl lg:text-7xl font-black text-white leading-none mb-6 text-center">
-                THE ULTIMATE <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">ROGUELIKE QUIZ</span>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400"> ROGUELIKE</span>
+                QUIZ
             </h1>
             <p class="text-lg text-slate-400 mb-10 max-w-lg leading-relaxed mx-auto text-center">
                 Satu kesalahan berarti maut. Hadapi kuis yang diacak secara prosedural, kumpulkan <span class="text-blue-400 font-bold">EXP</span>, dan capai puncak

@@ -32,6 +32,7 @@ if (!isAdmin()) {
             color: #1e293b;
         }
 
+        /* Sidebar Premium */
         .sidebar-gradient {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         }
@@ -56,11 +57,6 @@ if (!isAdmin()) {
             transform: translateY(-8px);
             border-color: var(--admin-primary);
             box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
-        }
-
-
-        .form-input-premium {
-            @apply transition-all duration-200 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl bg-white/50;
         }
 
         ::-webkit-scrollbar {

@@ -32,6 +32,8 @@ if (count($soal_list) == 0) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/tomorrow-night.min.css">
+    <!-- LottieFiles CDN for animation -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap');
 
@@ -157,10 +159,17 @@ if (count($soal_list) == 0) {
             </div>
 
             <div v-else class="flex-1 flex flex-col items-center justify-center py-12">
-                <div class="glass p-12 rounded-[3rem] text-center max-w-md w-full border-green-500/30 border-2">
-                    <div class="w-24 h-24 bg-green-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-600/40 animate-bounce">
-                        <i class="fas fa-crown text-4xl text-white"></i>
-                    </div>
+                <div class="glass p-12 rounded-[3rem] text-center max-w-md w-full border-green-500/30 border-2 relative">
+                    <!-- Lottie Animation for Celebration -->
+                    <lottie-player
+                        src="https://assets2.lottiefiles.com/packages/lf20_jbrw3hcz.json"
+                        background="transparent"
+                        speed="1"
+                        style="width: 120px; height: 120px; margin: 0 auto 24px auto;"
+                        autoplay
+                        loop
+                        id="celebrate-lottie"
+                    ></lottie-player>
                     <h2 class="text-4xl font-black text-white mb-2">SURVIVED!</h2>
                     <p class="text-slate-400 mb-8 italic">Kamu MC! Dungeon berhasil ditaklukkan.</p>
                     <p class="text-slate-400 mb-8">ヾ(⌐■_■)ノ♪</p>
@@ -174,6 +183,12 @@ if (count($soal_list) == 0) {
         </transition>
     </div>
 
+    <!-- Sound Effects -->
+    <audio id="sfx-correct" src="../../player/assets/audio/correct.mp3" preload="auto"></audio>
+    <audio id="sfx-wrong" src="../../player/assets/audio/wrong.mp3" preload="auto"></audio>
+    <audio id="sfx-celebrate" src="../../player/assets/audio/celebrate.mp3" preload="auto"></audio>
+    <audio id="sfx-transition" src="../../player/assets/audio/transition.mp3" preload="auto"></audio>
+    <audio id="sfx-gameover" src="../../player/assets/audio/game over.mp3" preload="auto"></audio>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script>
         const {
@@ -193,25 +208,46 @@ if (count($soal_list) == 0) {
                 const gameOver = ref(false);
                 const isWrong = ref(false);
 
+                // SFX elements
+                let sfxCorrect, sfxWrong, sfxCelebrate, sfxTransition, sfxGameover;
+
                 const highlightCode = () => {
                     nextTick(() => {
                         if (typeof Prism !== 'undefined') Prism.highlightAll();
                     });
                 };
 
+                const playSFX = (audio) => {
+                    if (audio) {
+                        audio.currentTime = 0;
+                        audio.play().catch(e => {
+                            // Log error for debugging
+                            console.warn('Audio play failed:', e);
+                        });
+                    } else {
+                        console.warn('Audio element not found');
+                    }
+                };
+
                 const handleAnswer = (userAns) => {
                     if (userAns === soal.value[currentStep.value].jawaban_benar) {
                         // Benar: Tambah XP
+                        playSFX(sfxCorrect);
                         totalScore.value += parseInt(soal.value[currentStep.value].score);
-                        nextQuestion();
+                        setTimeout(() => {
+                            playSFX(sfxTransition);
+                            nextQuestion();
+                        }, 250);
                     } else {
                         // Salah: Kurangi Nyawa & Shake Efek
+                        playSFX(sfxWrong);
                         lives.value--;
                         isWrong.value = true;
 
                         setTimeout(async () => {
                             isWrong.value = false;
                             if (lives.value <= 0) {
+                                playSFX(sfxGameover);
                                 gameOver.value = true;
                                 // Kirim data kegagalan ke server
                                 try {
@@ -226,6 +262,7 @@ if (count($soal_list) == 0) {
                                     });
                                 } catch (e) {}
                             } else {
+                                playSFX(sfxTransition);
                                 nextQuestion();
                             }
                         }, 500);
@@ -243,6 +280,8 @@ if (count($soal_list) == 0) {
 
                 const submitFinalResults = async () => {
                     finished.value = true;
+                    // Play celebration SFX
+                    playSFX(sfxCelebrate);
                     // Kirim XP dan quiz_ids ke server untuk lock quiz
                     try {
                         const quizIds = soal.value.map(q => q.id);
@@ -261,7 +300,14 @@ if (count($soal_list) == 0) {
                     }
                 };
 
-                onMounted(highlightCode);
+                onMounted(() => {
+                    highlightCode();
+                    sfxCorrect = document.getElementById('sfx-correct');
+                    sfxWrong = document.getElementById('sfx-wrong');
+                    sfxCelebrate = document.getElementById('sfx-celebrate');
+                    sfxTransition = document.getElementById('sfx-transition');
+                    sfxGameover = document.getElementById('sfx-gameover');
+                });
 
                 return {
                     soal,
