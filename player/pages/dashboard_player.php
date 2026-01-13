@@ -40,6 +40,7 @@ $query_kategori = mysqli_query($conn, "
         ) as soal_selesai
     FROM quizzes q
     GROUP BY q.materi
+    ORDER BY q.materi ASC
 ");
 
 
@@ -306,130 +307,258 @@ $total_selesai_global = $selesai_data['total'];
             <span class="w-2 h-8 bg-blue-600 rounded-full"></span> Available Dungeons Missions
         </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <?php while ($kategori = mysqli_fetch_assoc($query_kategori)):
-                $materi_nama = $kategori['materi'];
-                $total = $kategori['jumlah_soal'];
-                $selesai = $kategori['soal_selesai'];
-                $is_fully_done = ($total > 0 && $total == $selesai);
 
-                // Ikon materi 
-                $icon_map = [
-                    'javascript' => 'fab fa-js text-yellow-400',
-                    'js'         => 'fab fa-js text-yellow-400',
-                    'python'     => 'fab fa-python text-blue-500',
-                    'php'        => 'fab fa-php text-indigo-400',
-                    'java'       => 'fab fa-java text-red-500',
-                    'html'       => 'fab fa-html5 text-orange-500',
-                    'css'        => 'fab fa-css3-alt text-blue-400',
-                    'react'      => 'fab fa-react text-cyan-400',
-                    'vue'        => 'fab fa-vuejs text-emerald-500',
-                    'node'       => 'fab fa-node-js text-green-500',
-                    'laravel'    => 'fab fa-laravel text-red-600',
-                    'database'   => 'fas fa-database text-slate-400',
-                    'sql'        => 'fas fa-database text-blue-300',
-                    'mysql'      => 'fas fa-database text-blue-500',
-                    'c++'        => 'fab fa-cuttlefish text-blue-600',
-                    'c#'         => 'fas fa-hashtag text-purple-600',
-                    'ruby'       => 'fas fa-gem text-red-400',
-                    'swift'      => 'fab fa-swift text-orange-600',
-                    'docker'     => 'fab fa-docker text-blue-400',
-                    'github'     => 'fab fa-github text-slate-200',
-                    'git'        => 'fab fa-git-alt text-orange-500',
-                    'angular'    => 'fab fa-angular text-red-600',
-                    'figma'      => 'fab fa-figma text-purple-400',
-                    'sass'       => 'fab fa-sass text-pink-400',
-                ];
-                $icon_class = 'fas fa-terminal text-blue-500';
-                foreach ($icon_map as $key => $class) {
-                    if (stripos($materi_nama, $key) !== false) {
-                        $icon_class = $class;
-                        break;
-                    }
+        <div id="materi-container">
+            <h2 class="text-xl font-black text-white mb-6 flex items-center gap-3">
+                <i class="fas fa-swords text-blue-500"></i> Active Missions
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" id="materi-list-active">
+                <?php
+                // Reset pointer ke awal
+                mysqli_data_seek($query_kategori, 0);
+                $has_active = false;
+                $completed = [];
+                while ($kategori = mysqli_fetch_assoc($query_kategori)):
+                    $total = $kategori['jumlah_soal'];
+                    $selesai = $kategori['soal_selesai'];
+                    $is_fully_done = ($total > 0 && $total == $selesai);
+                    if (!$is_fully_done):
+                        $has_active = true;
+                        renderCard($kategori, false);
+                    else:
+                        $completed[] = $kategori;
+                    endif;
+                endwhile;
+                if (!$has_active) echo "<p class='col-span-full text-slate-500 italic'>Semua misi di kategori ini telah selesai!</p>";
+                ?>
+            </div>
+            <h2 class="text-xl font-black text-slate-400 mb-6 flex items-center gap-3">
+                <i class="fas fa-check-double text-emerald-500"></i> Completed Missions
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-75" id="materi-list-completed">
+                <?php
+                foreach ($completed as $kategori):
+                    renderCard($kategori, true);
+                endforeach;
+                if (empty($completed)) echo "<p class='col-span-full text-slate-500 italic'>Belum ada misi yang selesai!</p>";
+                ?>
+            </div>
+            <script>
+                function filterBahasa(idmateri, btn) {
+                    var items = document.querySelectorAll('.category-card');
+                    items.forEach(function(item) {
+                        if (idmateri === 'all' || item.getAttribute('data-idmateri') === idmateri) {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    });
+                    var buttons = document.querySelectorAll('.kategori-btn');
+                    buttons.forEach(function(b) { b.classList.remove('bg-blue-600', 'text-white'); b.classList.add('bg-slate-800', 'text-blue-400'); });
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-slate-800', 'text-blue-400');
                 }
-
-            ?>
-                <div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group <?php echo $is_fully_done ? 'opacity-60' : ''; ?>">
-                    <div class="h-40 flex items-center justify-center relative overflow-hidden bg-slate-800/30 border-b border-slate-700/50">
-                        <i class="<?php echo $icon_class; ?> text-7xl absolute transform group-hover:scale-125 transition-transform duration-500 opacity-10"></i>
-                        <i class="<?php echo $icon_class; ?> text-5xl relative z-10"></i>
-
-                        <?php if ($is_fully_done): ?>
-                            <div class="absolute inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] z-20">
-                                <div class="bg-emerald-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
-                                    <i class="fas fa-check-circle mr-1"></i> Completed
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!--QUIZ-->
-                    <div class="group relative bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 transition-all duration-500 hover:border-indigo-500/50 hover:bg-slate-900/60 overflow-hidden">
-
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-all"></div>
-
-                        <div class="flex justify-between items-start mb-8 relative z-10">
-                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/5 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/30 transition-all duration-500">
-                                <i class="<?php echo $icon_class ?: 'fas fa-terminal text-blue-500'; ?> text-3xl shadow-glow"></i>
-                            </div>
-
-                            <?php if ($is_fully_done): ?>
-                                <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Done</span>
-                                </div>
-                            <?php else: ?>
-                                <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">
-                                    <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-                                    <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Active</span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="relative z-10">
-                            <h3 class="text-2xl font-black text-white mb-2 tracking-tight group-hover:text-indigo-400 transition-colors">
-                                <?php echo htmlspecialchars($materi_nama); ?>
-                            </h3>
-                            <p class="text-slate-500 text-xs font-medium mb-6">Uji kemampuan algoritma dan logika <?php echo htmlspecialchars($materi_nama); ?> Anda.</p>
-
-                            <div class="space-y-3 mb-8 bg-slate-800/30 p-4 rounded-2xl border border-white/5">
-                                <div class="flex justify-between items-end">
-                                    <div>
-                                        <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Completion Rate</p>
-                                        <p class="text-lg font-black text-white"><?php echo ($total > 0) ? round(($selesai / $total) * 100) : 0; ?><span class="text-xs text-slate-500 ml-0.5">%</span></p>
-                                    </div>
-                                    <p class="text-[10px] font-bold text-slate-400"><?php echo $selesai; ?> <span class="text-slate-600">/</span> <?php echo $total; ?></p>
-                                </div>
-                                <div class="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
-                                    <div class="h-full bg-gradient-to-r from-indigo-600 to-blue-400 rounded-full transition-all duration-1000 relative"
-                                        style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%">
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4 mb-6">
-                                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">12 agents currently deployed</span>
-                            </div>
-                            <?php if (!$is_fully_done): ?>
-                                <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
-                                    class="group/btn relative flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 overflow-hidden">
-                                    <span class="relative z-10 flex items-center gap-2">
-                                        Deploy Mission <i class="fas fa-rocket text-[8px] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
-                                    </span>
-                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
-                                </a>
-                            <?php else: ?>
-                                <div class="flex items-center justify-center gap-3 w-full bg-slate-800/50 text-slate-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border border-white/5">
-                                    <i class="fas fa-certificate text-emerald-500"></i>
-                                    Mission Cleared
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endwhile; ?>
+            </script>
         </div>
+
+        <?php
+        // untuk merender kartu agar kode tidak duplikat
+        function renderCard($kategori, $is_fully_done)
+        {
+            $materi_nama = $kategori['materi'];
+            $id_materi = isset($kategori['id_materi']) ? $kategori['id_materi'] : '';
+            $total = $kategori['jumlah_soal'];
+            $selesai = $kategori['soal_selesai'];
+
+            $icon_map = [
+                'javascript' => 'fab fa-js text-yellow-400',
+                'js' => 'fab fa-js text-yellow-400',
+                'python' => 'fab fa-python text-blue-500',
+                'php' => 'fab fa-php text-indigo-400',
+                'java' => 'fab fa-java text-red-500',
+                'html' => 'fab fa-html5 text-orange-500',
+                'css' => 'fab fa-css3-alt text-blue-400',
+                'react' => 'fab fa-react text-cyan-400',
+                'database' => 'fas fa-database text-slate-400',
+                'mysql' => 'fas fa-database text-blue-500'
+            ];
+
+            $icon_class = 'fas fa-terminal text-blue-500';
+            foreach ($icon_map as $key => $class) {
+                if (stripos(strtolower($materi_nama), $key) !== false) {
+                    $icon_class = $class;
+                    break;
+                }
+            }
+        ?>
+            <div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group relative" data-materi="<?php echo htmlspecialchars($materi_nama); ?>" data-idmateri="<?php echo htmlspecialchars($id_materi); ?>">
+    <i class="<?php echo $icon_class; ?> absolute -right-4 -top-4 text-8 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.07] transition-all duration-700 pointer-events-none" style="font-size: 10rem;"></i>
+
+    <div class="relative p-8 flex flex-col h-full z-10">
+        <div class="flex justify-between items-start mb-8">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/50 transition-all duration-500">
+                <i class="<?php echo $icon_class; ?> text-3xl"></i>
+            </div>
+            
+            <?php if ($is_fully_done): ?>
+                <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full backdrop-blur-md">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Done</span>
+                </div>
+            <?php else: ?>
+                <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full backdrop-blur-md">
+                    <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                    <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Active</span>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-2xl font-extrabold text-white mb-2 tracking-tight group-hover:text-indigo-400 transition-colors">
+                <?php echo htmlspecialchars($materi_nama); ?>
+            </h3>
+            <p class="text-slate-400 text-xs leading-relaxed opacity-80">
+                Uji kemampuan algoritma dan logika sistem pada modul <?php echo htmlspecialchars($materi_nama); ?>.
+            </p>
+        </div>
+
+        <div class="mt-auto space-y-3 mb-8 bg-slate-900/50 p-5 rounded-3xl border border-white/5 group-hover:border-indigo-500/20 transition-colors">
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Completion Rate</p>
+                    <p class="text-xl font-black text-white">
+                        <?php echo ($total > 0) ? round(($selesai / $total) * 100) : 0; ?><span class="text-xs text-slate-500 ml-0.5">%</span>
+                    </p>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md">
+                    <?php echo $selesai; ?> <span class="text-slate-600">/</span> <?php echo $total; ?>
+                </p>
+            </div>
+            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden p-[2px]">
+                <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r <?php echo $is_fully_done ? 'from-emerald-600 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'from-indigo-600 to-blue-400 shadow-[0_0_10px_rgba(79,70,229,0.4)]'; ?>"
+                    style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%">
+                </div>
+            </div>
+        </div>
+
+        <?php if (!$is_fully_done): ?>
+            <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
+                class="group/btn relative flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95 overflow-hidden">
+                <span class="relative z-10 flex items-center gap-2">
+                    Deploy Mission <i class="fas fa-rocket text-[10px] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
+                </span>
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+            </a>
+        <?php else: ?>
+            <div class="flex items-center justify-center gap-3 w-full bg-emerald-500/5 text-emerald-500/50 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border border-emerald-500/10">
+                <i class="fas fa-certificate text-emerald-500"></i>
+                Mission Cleared
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+        <?php
+        }
+        ?>
+
+        <script>
+            function filterMateri(materi, btn) {
+                var items = document.querySelectorAll('.category-card');
+                items.forEach(function(item) {
+                    if (materi === 'all' || item.getAttribute('data-materi') === materi) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                var btns = document.querySelectorAll('.kategori-btn');
+                btns.forEach(b => b.className = 'kategori-btn bg-slate-800 text-blue-400 px-4 py-2 rounded-full font-bold text-xs');
+                btn.className = 'kategori-btn bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-xs';
+            }
+        </script>
     </main>
 </body>
+
+<footer class="mt-20 border-t border-slate-800 bg-slate-900/50 backdrop-blur-md pt-16 pb-8">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+
+            <div class="col-span-1 md:col-span-1">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-600/20">
+                        <i class="fas fa-code text-white"></i>
+                    </div>
+                    <span class="font-black text-xl tracking-tighter text-white uppercase">
+                        CODE<span class="text-blue-500">MASTER</span>
+                    </span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                    Platform dungeon-crawler untuk mengasah logika algoritma. Hadapi tantangan, kumpulkan XP, dan jadilah Master di dunia sintaks.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:border-blue-500/50 border border-transparent transition-all">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 hover:text-pink-500 hover:border-pink-500/50 border border-transparent transition-all">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-400/50 border border-transparent transition-all">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-black text-xs uppercase tracking-[0.2em] mb-6">Navigation</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-slate-500 hover:text-blue-400 text-sm transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[10px]"></i> Dashboard</a></li>
+                    <li><a href="leaderboard_page.php" class="text-slate-500 hover:text-blue-400 text-sm transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[10px]"></i> Leaderboard</a></li>
+                    <li><a href="profile.php" class="text-slate-500 hover:text-blue-400 text-sm transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[10px]"></i> Player Profile</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-black text-xs uppercase tracking-[0.2em] mb-6">Active</h4>
+                <ul class="space-y-4 text-slate-500 text-sm">
+                    <li class="flex items-center gap-2"><i class="fab fa-js text-yellow-500/50"></i> Javascript Logic</li>
+                    <li class="flex items-center gap-2"><i class="fab fa-python text-blue-500/50"></i> Python Chamber</li>
+                    <li class="flex items-center gap-2"><i class="fas fa-database text-slate-500/50"></i> SQL Fortress</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-800/30 p-6 rounded-[2rem] border border-white/5">
+                <h4 class="text-white font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> System Status
+                </h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-slate-500">SERVER:</span>
+                        <span class="text-green-400 uppercase">Online</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-slate-500">VERSION:</span>
+                        <span class="text-blue-400">v2.4.0-stable</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-slate-500">LATENCY:</span>
+                        <span class="text-slate-400">24ms</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+                &copy; 24552011212_Aldi Alfariz_TIF 23 RP CNS A_UASWEB1
+            </p>
+            <div class="flex gap-8">
+                <a href="#" class="text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-widest">Privacy Policy</a>
+                <a href="#" class="text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-widest">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
 
 </html>
