@@ -55,6 +55,8 @@ if ($materi_id > 0) {
             font-size: 14px;
             line-height: 1.6;
             border-right: 1px solid #2d2d2d;
+            white-space: pre;
+            overflow: hidden;
         }
 
         .output-frame {
@@ -98,15 +100,15 @@ if ($materi_id > 0) {
 
 <body class="text-slate-200">
     <div class="h-screen flex flex-col">
-        <header class="bg-slate-900 border-b border-slate-800 p-3 px-6 shadow-2xl z-10">
+        <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 shadow-xl z-10">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
-                        <i class="fas fa-code <?php echo $materi_icon ?: 'fa-code'; ?> text-white text-lg"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
+                        <i class="fas <?php echo $materi_icon ?: 'fa-code'; ?> text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold tracking-tight"><?php echo htmlspecialchars($materi_nama); ?></h1>
-                        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Player Workspace</p>
+                        <h1 class="text-xl font-bold tracking-tight text-white"><?php echo htmlspecialchars($materi_nama); ?></h1>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Interactive Coding Workspace</p>
                     </div>
                 </div>
 
@@ -136,13 +138,13 @@ if ($materi_id > 0) {
 
         <main class="flex-1 flex overflow-hidden p-3 gap-3 bg-slate-950">
 
-            <section class="w-[28%] flex flex-col gap-3">
+            <section class="w-[32rem] flex-shrink-0 flex flex-col gap-3">
                 <div class="flex-1 panel-container bg-slate-900/50 flex flex-col">
                     <div class="p-4 border-b border-slate-800 flex items-center gap-2">
                         <i class="fas fa-book-open text-blue-400 text-xs"></i>
                         <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Instructions</span>
                     </div>
-                    <div id="lesson-content" class="flex-1 overflow-y-auto p-6 prose prose-invert prose-sm max-w-none">
+                    <div id="lesson-content" class="flex-1 overflow-y-auto p-6 prose prose-invert prose-base max-w-none">
                         <div class="animate-pulse space-y-4">
                             <div class="h-6 bg-slate-800 rounded w-3/4"></div>
                             <div class="h-4 bg-slate-800 rounded w-full"></div>
@@ -151,15 +153,16 @@ if ($materi_id > 0) {
                     </div>
                 </div>
 
-                <div class="h-[35%] panel-container bg-slate-900/50 flex flex-col">
-                    <div class="p-3 border-b border-slate-800 flex justify-between items-center">
+                <div class="h-120 panel-container bg-slate-900/50 flex flex-col">
+                    <div class="p-3 border-b border-slate-800 flex items-center gap-2">
+                        <i class="fas fa-list text-emerald-400 text-xs"></i>
                         <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Curriculum</span>
                     </div>
-                    <div id="lesson-list" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+                    <div id="lesson-list" class="flex-1 overflow-y-auto p-3 space-y-1.5"></div>
                 </div>
             </section>
 
-            <section class="w-[37%] panel-container bg-[#1e1e1e] flex flex-col shadow-2xl border-slate-800">
+            <section class="flex-1 panel-container bg-[#1e1e1e] flex flex-col shadow-2xl border-slate-800">
                 <div class="bg-slate-800/50 p-2 px-4 border-b border-white/5 flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <div class="flex gap-1.5">
@@ -184,7 +187,7 @@ if ($materi_id > 0) {
                 </div>
             </section>
 
-            <section class="w-[35%] panel-container bg-white flex flex-col shadow-2xl border-slate-800">
+            <section class="flex-1 panel-container bg-white flex flex-col shadow-2xl border-slate-800">
                 <div class="bg-slate-100 p-2 px-4 border-b border-slate-200 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -205,6 +208,10 @@ if ($materi_id > 0) {
                 <span class="text-4xl">🏆</span>
             </div>
             <h2 class="text-2xl font-bold mb-2 text-white">Challenge Solved!</h2>
+            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 px-4 py-2 rounded-lg mb-4">
+                <i class="fas fa-star text-yellow-400"></i>
+                <span class="text-lg font-bold text-yellow-300">+<span id="earned-xp">10</span> XP</span>
+            </div>
             <p class="text-slate-400 mb-8 text-sm">You have successfully completed this lesson. Keep the momentum going!</p>
             <button id="next-lesson-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/40">
                 NEXT LESSON
@@ -296,13 +303,31 @@ if ($materi_id > 0) {
             listContainer.innerHTML = allLessons.map(lesson => {
                 const isCompleted = userProgress.includes(lesson.id);
                 const isActive = currentLessonId === lesson.id;
+                const expValue = lesson.exp || 10;
+                
+                let bgClass = 'hover:bg-slate-800 text-slate-400';
+                let completedBadge = '';
+                
+                if (isCompleted && !isActive) {
+                    bgClass = 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
+                    completedBadge = '<span class="text-[8px] font-bold bg-emerald-500/40 text-emerald-200 px-2 py-1 rounded">✓ DONE</span>';
+                } else if (isActive) {
+                    bgClass = 'bg-blue-600 text-white shadow-lg';
+                }
+                
                 return `
-                    <button onclick="loadLesson(${lesson.id})" class="w-full text-left p-3 rounded-lg flex items-center justify-between transition-all group ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-400'}">
-                        <div class="flex items-center gap-3">
-                            <span class="text-[10px] font-mono ${isActive ? 'text-blue-200' : 'text-slate-600'}">${lesson.order_no.toString().padStart(2, '0')}</span>
-                            <span class="text-xs font-semibold">${lesson.title}</span>
+                    <button onclick="loadLesson(${lesson.id})" class="w-full text-left p-3 rounded-lg flex items-center justify-between transition-all group ${bgClass}">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <span class="text-[10px] font-mono ${isActive ? 'text-blue-200' : isCompleted ? 'text-emerald-500' : 'text-slate-600'} flex-shrink-0">${lesson.order_no.toString().padStart(2, '0')}</span>
+                            <span class="text-xs font-semibold truncate">${lesson.title}</span>
                         </div>
-                        ${isCompleted ? '<i class="fas fa-check-circle text-emerald-400 text-xs"></i>' : '<i class="far fa-circle text-[10px] opacity-20 group-hover:opacity-100"></i>'}
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                            ${completedBadge}
+                            <span class="text-[10px] font-bold ${isActive ? 'text-yellow-300' : 'text-yellow-500/60'} flex items-center gap-1 whitespace-nowrap">
+                                <i class="fas fa-star"></i> ${expValue}
+                            </span>
+                            ${isCompleted ? '<i class="fas fa-check-circle text-emerald-400 text-xs flex-shrink-0"></i>' : '<i class="far fa-circle text-[10px] opacity-20 group-hover:opacity-100 flex-shrink-0"></i>'}
+                        </div>
                     </button>
                 `;
             }).join('');
@@ -315,11 +340,51 @@ if ($materi_id > 0) {
                 if (data.success) {
                     currentLessonId = lessonId;
                     const lesson = data.lesson;
-                    document.getElementById('lesson-content').innerHTML = `
-                        <h2 class="text-xl font-bold text-white mb-2">${lesson.title}</h2>
+                    const expValue = lesson.exp || 10;
+                    const isCompleted = userProgress.includes(lessonId);
+                    
+                    // Update instruction content with completed badge if needed
+                    let instructionHTML = `
+                        <div class="flex items-start justify-between mb-4">
+                            <h2 class="text-xl font-bold text-white">${lesson.title}</h2>
+                            <div class="flex items-center gap-2">`;
+                    
+                    if (isCompleted) {
+                        instructionHTML += `
+                            <div class="flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-lg">
+                                <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                                <span class="text-sm font-bold text-emerald-300">COMPLETED</span>
+                            </div>`;
+                    }
+                    
+                    instructionHTML += `
+                            <div class="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 px-3 py-1.5 rounded-lg">
+                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                <span class="text-sm font-bold text-yellow-300">${expValue} XP</span>
+                            </div>
+                        </div>
+                        </div>
                         <div class="text-slate-300 leading-relaxed text-sm">${lesson.content}</div>
                     `;
+                    
+                    document.getElementById('lesson-content').innerHTML = instructionHTML;
                     document.getElementById('code-editor').value = lesson.starter_code || '';
+                    
+                    // Disable editor if lesson is completed
+                    const editor = document.getElementById('code-editor');
+                    const submitBtn = document.getElementById('submit-btn');
+                    if (isCompleted) {
+                        editor.disabled = true;
+                        editor.classList.add('opacity-60', 'cursor-not-allowed');
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        editor.disabled = false;
+                        editor.classList.remove('opacity-60', 'cursor-not-allowed');
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                    
                     updateLineNumbers();
                     renderLessonList();
                     runCode(); // Auto run on load
@@ -368,6 +433,15 @@ if ($materi_id > 0) {
 
                 if (data.success && data.correct) {
                     if (!userProgress.includes(currentLessonId)) userProgress.push(currentLessonId);
+                    
+                    // Update XP in success modal
+                    const currentLesson = allLessons.find(l => l.id === currentLessonId);
+                    const earnedXP = currentLesson?.exp || 10;
+                    document.getElementById('earned-xp').textContent = earnedXP;
+                    
+                    // Save XP to user account
+                    saveXPToAccount(currentLessonId, earnedXP);
+                    
                     updateProgressBar();
                     renderLessonList();
                     document.getElementById('success-modal').classList.remove('hidden');
@@ -394,6 +468,29 @@ if ($materi_id > 0) {
             const percentage = allLessons.length > 0 ? Math.round((userProgress.length / allLessons.length) * 100) : 0;
             document.getElementById('progress-bar').style.width = percentage + '%';
             document.getElementById('progress-text').textContent = percentage + '%';
+        }
+
+        async function saveXPToAccount(lessonId, expAmount) {
+            try {
+                const response = await fetch('../../../server/lesson/api_exp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lesson_id: lessonId,
+                        exp_amount: expAmount
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('XP saved: +' + data.exp_added + ' XP (Total: ' + data.total_exp + ')');
+                } else {
+                    console.error('Error saving XP:', data.message);
+                }
+            } catch (error) {
+                console.error('Error saving XP:', error);
+            }
         }
 
         function updateLineNumbers() {

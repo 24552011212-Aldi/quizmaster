@@ -11,21 +11,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
 
 $user_id = $_SESSION['user_id'];
 
-//mengambil total score
-$stmt_score = $conn->prepare("SELECT SUM(skor_akhir) as total FROM leaderboard WHERE user_id = ?");
+//mengambil total experience dari users table
+$stmt_score = $conn->prepare("SELECT total_exp FROM users WHERE id = ?");
 $stmt_score->bind_param("i", $user_id);
 $stmt_score->execute();
 $data_score = $stmt_score->get_result()->fetch_assoc();
-$total_xp = $data_score['total'] ?? 0;
+$total_xp = $data_score['total_exp'] ?? 0;
 
-// leaderboard sampai 3 besar
+// leaderboard sampai 3 besar dari total_exp
 $query_leaderboard = mysqli_query($conn, "
-    SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
+    SELECT u.username, u.total_exp 
     FROM users u
-    LEFT JOIN leaderboard l ON u.id = l.user_id
     WHERE u.role = 'player'
-    GROUP BY u.id
-    ORDER BY total_skor DESC
+    ORDER BY u.total_exp DESC
     LIMIT 3
 ");
 
@@ -225,7 +223,7 @@ $total_selesai_global = $selesai_data['total'];
                                 </span>
                                 <span class="text-sm font-bold"><?php echo htmlspecialchars($row['username']); ?></span>
                             </div>
-                            <span class="text-xs font-black text-slate-300"><?php echo number_format($row['total_skor']); ?> XP</span>
+                            <span class="text-xs font-black text-slate-300"><?php echo number_format($row['total_exp']); ?> XP</span>
                         </div>
                     <?php endwhile; ?>
                     <a href="leaderboard_page.php"
@@ -385,6 +383,7 @@ $total_selesai_global = $selesai_data['total'];
                         'fa-php' => 'fab fa-php text-indigo-400',
                         'fa-python' => 'fab fa-python text-blue-500',
                         'fa-java' => 'fab fa-java text-red-500',
+                        
                     ];
                     return $fa[$icon] ?? 'fas fa-terminal text-blue-500';
                 }

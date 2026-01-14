@@ -12,30 +12,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
 $user_id = $_SESSION['user_id'];
 
 //mengambil total score
-$stmt_score = $conn->prepare("SELECT SUM(skor_akhir) as total FROM leaderboard WHERE user_id = ?");
+$stmt_score = $conn->prepare("SELECT total_exp as total FROM users WHERE id = ?");
 $stmt_score->bind_param("i", $user_id);
 $stmt_score->execute();
 $data_score = $stmt_score->get_result()->fetch_assoc();
 $total_xp = $data_score['total'] ?? 0;
 
-// leaderboard dari atas
+// leaderboard dari atas (sorted by total_exp)
 $query_leaderboard = mysqli_query($conn, "
-    SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
+    SELECT u.id, u.username, u.total_exp as total_skor
     FROM users u
-    LEFT JOIN leaderboard l ON u.id = l.user_id
     WHERE u.role = 'player'
-    GROUP BY u.id
-    ORDER BY total_skor DESC
+    ORDER BY u.total_exp DESC
 ");
 
-// leaderboard dari bawah
+// leaderboard dari bawah (sorted by total_exp ascending)
 $query_leaderboard_malas = mysqli_query($conn, "
-    SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor 
+    SELECT u.id, u.username, u.total_exp as total_skor
     FROM users u
-    LEFT JOIN leaderboard l ON u.id = l.user_id
     WHERE u.role = 'player'
-    GROUP BY u.id
-    ORDER BY total_skor ASC
+    ORDER BY u.total_exp ASC
 ");
 
 
@@ -137,7 +133,7 @@ $query_kategori = mysqli_query($conn, "
                 <div class="space-y-3;">
                     <?php
                     // Reset query_leaderboard
-                    $query_leaderboard = mysqli_query($conn, "SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor FROM users u LEFT JOIN leaderboard l ON u.id = l.user_id WHERE u.role = 'player' GROUP BY u.id ORDER BY total_skor DESC");
+                    $query_leaderboard = mysqli_query($conn, "SELECT u.id, u.username, u.total_exp as total_skor FROM users u WHERE u.role = 'player' ORDER BY u.total_exp DESC");
                     $no = 1;
                     while ($row = mysqli_fetch_assoc($query_leaderboard)):
                         $is_me = ($row['username'] == $_SESSION['username']); ?>
@@ -162,7 +158,7 @@ $query_kategori = mysqli_query($conn, "
                 <div class="space-y-3;">
                     <?php
                     // Reset query_leaderboard
-                    $query_leaderboard = mysqli_query($conn, "SELECT u.username, IFNULL(SUM(l.skor_akhir), 0) as total_skor FROM users u LEFT JOIN leaderboard l ON u.id = l.user_id WHERE u.role = 'player' GROUP BY u.id ORDER BY total_skor ASC");
+                    $query_leaderboard_malas = mysqli_query($conn, "SELECT u.id, u.username, u.total_exp as total_skor FROM users u WHERE u.role = 'player' ORDER BY u.total_exp ASC");
                     $no = 1;
                     while ($row = mysqli_fetch_assoc($query_leaderboard_malas)):
                         $is_me = ($row['username'] == $_SESSION['username']); ?>

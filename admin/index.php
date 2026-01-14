@@ -94,7 +94,7 @@ if (!isAdmin()) {
                 </div>
 
                 <nav class="space-y-3">
-                    <div v-for="item in [{id:'materi', icon:'book', label:'Materi'}, {id:'quizzes', icon:'code', label:'Quizzes'}, {id:'stats', icon:'chart-pie', label:'Analytics'}]"
+                    <div v-for="item in [{id:'materi', icon:'book', label:'Materi'}, {id:'lessons', icon:'graduation-cap', label:'Lessons'}, {id:'quizzes', icon:'code', label:'Quizzes'}, {id:'stats', icon:'chart-pie', label:'Analytics'}]"
                         @click="activeTab = item.id"
                         :class="activeTab === item.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40' : 'text-slate-400 hover:text-white hover:bg-white/5'"
                         class="group flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300">
@@ -141,12 +141,12 @@ if (!isAdmin()) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="m in materiList" :key="m" class="border-t">
+                                <tr v-for="m in materiList" :key="m.id" class="border-t">
                                     <td class="p-5 font-bold flex items-center gap-3">
-                                        <i :class="getMateriIcon(m)" class="text-xl"></i> {{ m }}
+                                        <i :class="getMateriIcon(m.nama)" class="text-xl"></i> {{ m.nama }}
                                     </td>
                                     <td class="p-5 text-right">
-                                        <button @click="deleteMateri(m)" class="text-red-500"><i class="fas fa-trash"></i></button>
+                                        <button @click="deleteMateri(m.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 <tr v-if="materiList.length === 0">
@@ -154,6 +154,187 @@ if (!isAdmin()) {
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!--LESSONS-->
+            <div v-if="activeTab === 'lessons'">
+                <header class="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tight text-slate-900">Lesson Management</h1>
+                        <p class="text-slate-500 font-medium">Buat pelajaran interaktif untuk player.</p>
+                    </div>
+                </header>
+
+                <div class="inline-flex bg-slate-200/50 p-1.5 rounded-2xl mb-8">
+                    <button @click="lessonMode = 'single'" :class="lessonMode === 'single' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2">
+                        <i class="fas fa-plus-circle"></i> Single Entry
+                    </button>
+                    <button @click="lessonMode = 'bulk'" :class="lessonMode === 'bulk' ? 'bg-white text-emerald-600 shadow-md' : 'text-slate-500 hover:text-slate-700'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2">
+                        <i class="fas fa-file-import"></i> Bulk Import
+                    </button>
+                </div>
+
+                <div v-if="lessonMode === 'single'" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-10">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2 space-y-6">
+                            <input v-model="newLesson.title" type="text" placeholder="Judul Lesson" class="p-4 w-full rounded-2xl form-input bg-slate-50">
+                            <div class="grid grid-cols-3 gap-4">
+                                <select v-model="newLesson.materi_id" class="p-4 rounded-2xl form-input bg-slate-50">
+                                    <option value="">Pilih Materi</option>
+                                    <option v-for="m in materiList" :key="m.id" :value="m.id">{{ m.nama }}</option>
+                                </select>
+                                <input v-model="newLesson.order_no" type="number" placeholder="Order No" class="p-4 rounded-2xl form-input bg-slate-50">
+                                <input v-model="newLesson.exp" type="number" placeholder="EXP Points" class="p-4 rounded-2xl form-input bg-slate-50">
+                            </div>
+                            <textarea v-model="newLesson.content" placeholder="Konten Pelajaran..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
+                        </div>
+
+                        <div class="md:col-span-3 lg:col-span-1">
+                            <div class="relative bg-[#1e2235] p-8 rounded-[2.5rem] shadow-2xl border border-white/5 group">
+
+                                <div class="flex gap-2 mb-8 px-2">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] shadow-lg shadow-red-500/20"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] shadow-lg shadow-amber-500/20"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] shadow-lg shadow-emerald-500/20"></div>
+                                </div>
+
+                                <div class="relative">
+                                    <div class="absolute -inset-2 bg-indigo-500/10 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+
+                                    <textarea
+                                        v-model="newLesson.starter_code"
+                                        placeholder="// Starter code untuk pelajaran..."
+                                        class="relative w-full h-[320px] bg-transparent text-[#e1e4e8] font-mono text-sm leading-relaxed outline-none resize-none custom-scrollbar spell-none"
+                                        style="color: #9cdceb;"
+                                        spellcheck="false"></textarea>
+                                </div>
+
+                                <div class="absolute bottom-6 right-8 opacity-20 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-terminal text-xs text-indigo-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3 space-y-6">
+                            <div>
+                                <label class="block text-xs font-black text-slate-600 uppercase mb-2">Validation Rules (JSON)</label>
+                                <textarea v-model="newLesson.validation_rules" placeholder='{"required_tags": ["h1", "p"], "min_counts": {"h1": 1, "p": 1}}' class="p-4 w-full rounded-2xl form-input bg-slate-50 h-20 font-mono text-xs"></textarea>
+                                <p class="text-[10px] text-slate-500 mt-2">Optional: Define validation rules as JSON. Example: required_tags, min_counts, require_non_empty_text_tags</p>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <button @click="addLesson" class="w-full bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold">Save Lesson</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!--BULK IMPORT LESSONS-->
+                <div v-else class="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div class="relative bg-[#1e2235] p-8 rounded-[2.5rem] shadow-2xl border border-white/5 group">
+
+                        <div class="flex items-center justify-between mb-8 px-2">
+                            <div class="flex gap-2">
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] shadow-lg shadow-red-500/20"></div>
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] shadow-lg shadow-amber-500/20"></div>
+                                <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] shadow-lg shadow-emerald-500/20"></div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Batch_Lessons.json</span>
+                                <a href="./bulk_lesson_format.json" download class="ml-3 px-3 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition-all border border-emerald-200 flex items-center gap-1">
+                                    <i class="fas fa-download"></i> Download Format
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div class="absolute -inset-4 bg-blue-500/5 blur-3xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+
+                            <textarea
+                                v-model="bulkLessonText"
+                                placeholder='[{"title": "HTML Basics", "materi_id": 1, ...}]'
+                                class="relative w-full h-80 bg-transparent text-blue-300 font-mono text-sm leading-relaxed outline-none resize-none custom-scrollbar"
+                                spellcheck="false"></textarea>
+                        </div>
+
+                        <div class="absolute bottom-6 right-8 opacity-40">
+                            <span class="text-[9px] font-black text-slate-500 border border-slate-700 px-2 py-1 rounded">JSON ARRAY</span>
+                        </div>
+                    </div>
+
+                    <button @click="importBulkLessons"
+                        class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-5 rounded-[2rem] hover:shadow-2xl hover:shadow-emerald-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <i class="fas fa-layer-group"></i>
+                        LAUNCH BATCH IMPORT
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-[2rem] border overflow-hidden">
+                    <div class="flex gap-4 p-5">
+                        <select v-model="selectedMateriLesson" class="p-4 rounded-2xl form-input bg-slate-50">
+                            <option value="">Semua Materi</option>
+                            <option v-for="m in materiList" :key="m.id" :value="m.id">{{ m.nama }}</option>
+                        </select>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="p-5 text-xs font-black text-slate-400 uppercase">No</th>
+                                <th class="p-5 text-xs font-black text-slate-400 uppercase">Judul</th>
+                                <th class="p-5 text-center text-xs font-black text-slate-400 uppercase">Materi</th>
+                                <th class="p-5 text-center text-xs font-black text-slate-400 uppercase">EXP</th>
+                                <th class="p-5 text-right text-xs font-black text-slate-400 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="l in filteredLessons" :key="l.id" class="border-t">
+                                <td class="p-5 font-bold">{{ l.order_no }}</td>
+                                <td class="p-5 font-bold">{{ l.title }}</td>
+                                <td class="p-5 text-center">{{ getMateriNameById(l.materi_id) }}</td>
+                                <td class="p-5 text-center"><span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">{{ l.exp || 10 }} XP</span></td>
+                                <td class="p-5 text-right flex gap-2 justify-end">
+                                    <button @click="showEditLesson(l)" class="text-blue-500"><i class="fas fa-edit"></i></button>
+                                    <button @click="deleteLesson(l.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="filteredLessons.length === 0">
+                                <td colspan="4" class="p-10 text-center text-slate-400">Belum ada lesson.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal Edit Lesson -->
+                <div v-if="editLessonModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl relative">
+                        <button @click="closeEditLesson" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                        <h2 class="text-2xl font-bold mb-6">Edit Lesson</h2>
+                        <div class="space-y-4">
+                            <input v-model="editLessonData.title" type="text" placeholder="Judul" class="p-4 w-full rounded-2xl form-input bg-slate-50">
+                            <div class="grid grid-cols-3 gap-4">
+                                <select v-model="editLessonData.materi_id" class="p-4 rounded-2xl form-input bg-slate-50">
+                                    <option value="">Pilih Materi</option>
+                                    <option v-for="m in materiList" :key="m.id" :value="m.id">{{ m.nama }}</option>
+                                </select>
+                                <input v-model="editLessonData.order_no" type="number" placeholder="Order No" class="p-4 rounded-2xl form-input bg-slate-50">
+                                <input v-model="editLessonData.exp" type="number" placeholder="EXP Points" class="p-4 rounded-2xl form-input bg-slate-50">
+                            </div>
+                            <textarea v-model="editLessonData.content" placeholder="Konten..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32"></textarea>
+                            <textarea v-model="editLessonData.starter_code" placeholder="Starter code..." class="p-4 w-full rounded-2xl form-input bg-slate-50 h-32 font-mono"></textarea>
+                            <div>
+                                <label class="block text-xs font-black text-slate-600 uppercase mb-2">Validation Rules (JSON)</label>
+                                <textarea v-model="editLessonData.validation_rules" placeholder='{"required_tags": ["h1"], "min_counts": {"h1": 1}}' class="p-4 w-full rounded-2xl form-input bg-slate-50 h-20 font-mono text-xs"></textarea>
+                            </div>
+                            <div class="flex gap-4">
+                                <button @click="updateLesson" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold">Update</button>
+                                <button @click="closeEditLesson" class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-bold">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -473,24 +654,58 @@ if (!isAdmin()) {
 
                 const fetchMateri = async () => {
                     try {
-                        const res = await fetch(`${apiQuizBase}/materi.php?t=${Date.now()}`);
-                        materiList.value = await res.json();
+                        const res = await fetch(`../server/lesson/api_materi.php?t=${Date.now()}`);
+                        const data = await res.json();
+                        if (data.success && data.data) {
+                            materiList.value = data.data;
+                        } else {
+                            materiList.value = [];
+                        }
                     } catch (e) {
+                        console.error('Error fetching materi:', e);
                         materiList.value = [];
                     }
                 };
 
-                const addMateri = () => {
-                    if (newMateri.value && !materiList.value.includes(newMateri.value)) {
-                        materiList.value.push(newMateri.value);
-                        newMateri.value = '';
+                const addMateri = async () => {
+                    if (newMateri.value) {
+                        try {
+                            const res = await fetch('../server/lesson/api_materi.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ nama: newMateri.value, icon: '' })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                newMateri.value = '';
+                                fetchMateri();
+                            } else {
+                                alert('Error adding materi: ' + data.message);
+                            }
+                        } catch (e) {
+                            alert('Error: ' + e.message);
+                        }
                     }
                 };
 
-                const deleteMateri = (m) => {
+                const deleteMateri = async (id) => {
                     if (confirm('Hapus materi?')) {
-                        materiList.value = materiList.value.filter(mat => mat !== m);
-                        quizzes.value = quizzes.value.filter(q => q.materi !== m);
+                        try {
+                            const res = await fetch(`../server/lesson/api_materi.php?id=${id}`, {
+                                method: 'DELETE'
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                fetchMateri();
+                                // Also refresh quizzes and lessons
+                                fetchQuizzes();
+                                fetchLessons();
+                            }
+                        } catch (e) {
+                            alert('Error: ' + e.message);
+                        }
                     }
                 };
 
@@ -615,9 +830,153 @@ if (!isAdmin()) {
                     return quizzes.value.filter(q => q.materi === selectedMateri.value);
                 });
 
+                // Lesson Management
+                const lessons = ref([]);
+                const lessonMode = ref('single');
+                const bulkLessonText = ref('');
+                const newLesson = ref({
+                    title: '',
+                    materi_id: '',
+                    content: '',
+                    starter_code: '',
+                    validation_rules: '',
+                    exp: 10,
+                    order_no: 1
+                });
+                const selectedMateriLesson = ref('');
+                const editLessonModal = ref(false);
+                const editLessonData = ref({});
+
+                const fetchLessons = async () => {
+                    try {
+                        const res = await fetch(`../server/lesson/api_lesson.php?t=${Date.now()}`);
+                        const data = await res.json();
+                        if (data.success) {
+                            lessons.value = data.lessons || [];
+                        }
+                    } catch (e) {
+                        console.error('Error fetching lessons:', e);
+                        lessons.value = [];
+                    }
+                };
+
+                const addLesson = async () => {
+                    try {
+                        const lessonData = { ...newLesson.value };
+                        // Parse validation_rules if it's a string
+                        if (lessonData.validation_rules && typeof lessonData.validation_rules === 'string') {
+                            try {
+                                lessonData.validation_rules = JSON.parse(lessonData.validation_rules);
+                            } catch (e) {
+                                alert('Invalid JSON in Validation Rules');
+                                return;
+                            }
+                        }
+                        
+                        await fetch(`../server/lesson/api_lesson.php`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(lessonData)
+                        });
+                        newLesson.value = {
+                            title: '',
+                            materi_id: '',
+                            content: '',
+                            starter_code: '',
+                            validation_rules: '',
+                            exp: 10,
+                            order_no: 1
+                        };
+                        fetchLessons();
+                        alert('Lesson added successfully!');
+                    } catch (e) {
+                        alert('Error adding lesson: ' + e.message);
+                    }
+                };
+
+                const deleteLesson = async (id) => {
+                    if (confirm('Delete this lesson?')) {
+                        try {
+                            await fetch(`../server/lesson/api_lesson.php?id=${id}`, {
+                                method: 'DELETE'
+                            });
+                            fetchLessons();
+                        } catch (e) {
+                            alert('Error deleting lesson: ' + e.message);
+                        }
+                    }
+                };
+
+                const showEditLesson = (lesson) => {
+                    editLessonData.value = { ...lesson };
+                    editLessonModal.value = true;
+                };
+
+                const closeEditLesson = () => {
+                    editLessonModal.value = false;
+                    editLessonData.value = {};
+                };
+
+                const updateLesson = async () => {
+                    try {
+                        const lessonData = { ...editLessonData.value };
+                        // Parse validation_rules if it's a string
+                        if (lessonData.validation_rules && typeof lessonData.validation_rules === 'string') {
+                            try {
+                                lessonData.validation_rules = JSON.parse(lessonData.validation_rules);
+                            } catch (e) {
+                                alert('Invalid JSON in Validation Rules');
+                                return;
+                            }
+                        }
+                        
+                        await fetch(`../server/lesson/api_lesson.php`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(lessonData)
+                        });
+                        closeEditLesson();
+                        fetchLessons();
+                        alert('Lesson updated successfully!');
+                    } catch (e) {
+                        alert('Error updating lesson: ' + e.message);
+                    }
+                };
+
+                const importBulkLessons = async () => {
+                    try {
+                        const data = JSON.parse(bulkLessonText.value);
+                        for (const item of data) {
+                            await fetch(`../server/lesson/api_lesson.php`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(item)
+                            });
+                        }
+                        bulkLessonText.value = '';
+                        lessonMode.value = 'single';
+                        fetchLessons();
+                        alert('All lessons imported successfully!');
+                    } catch (e) {
+                        alert('JSON Invalid atau error: ' + e.message);
+                    }
+                };
+
+                const filteredLessons = computed(() => {
+                    if (!selectedMateriLesson.value) return lessons.value;
+                    return lessons.value.filter(l => String(l.materi_id) === String(selectedMateriLesson.value));
+                });
+
                 onMounted(() => {
                     fetchQuizzes();
                     fetchStats();
+                    fetchLessons();
                 });
 
                 // Mapping materi ke ikon FontAwesome
@@ -655,6 +1014,11 @@ if (!isAdmin()) {
                     return 'fas fa-terminal text-blue-500';
                 }
 
+                function getMateriNameById(id) {
+                    const materi = materiList.value.find(m => m.id == id);
+                    return materi ? materi.nama : 'Unknown';
+                }
+
                 return {
                     activeTab,
                     mode,
@@ -674,13 +1038,29 @@ if (!isAdmin()) {
                     selectedMateri,
                     filteredQuizzes,
                     getMateriIcon,
+                    getMateriNameById,
                     // Edit Quiz
                     editQuizModal,
                     editQuizData,
                     showEditQuiz,
                     closeEditQuiz,
                     updateQuiz,
-                    deleteAccount
+                    deleteAccount,
+                    // Lessons
+                    lessons,
+                    lessonMode,
+                    bulkLessonText,
+                    newLesson,
+                    addLesson,
+                    deleteLesson,
+                    importBulkLessons,
+                    selectedMateriLesson,
+                    filteredLessons,
+                    editLessonModal,
+                    editLessonData,
+                    showEditLesson,
+                    closeEditLesson,
+                    updateLesson
                 };
             }
         }).mount('#app');
