@@ -1,0 +1,30 @@
+[
+  {
+    "title": "HTML Heading Basics",
+    "materi_id": 1,
+    "content": "<p>Learn how to create headings in HTML using h1-h6 tags.</p><p>Headings are important for document structure and SEO.</p>",
+    "starter_code": "<!--Write your code here-->",
+    "validation_rules": {
+      "language": "html",
+      "required_tags": ["h1"],
+      "min_counts": {"h1": 1},
+      "require_non_empty_text_tags": ["h1"]
+    },
+    "exp": 10,
+    "order_no": 1
+  },
+  {
+    "title": "Example Lesson Title",
+    "materi_id": 1,
+    "content": "<p>Description of the lesson.</p><p>Instructions for the task.</p>",
+    "starter_code": "<div style=\"display:none;\" onclick=\"\"><!--Write your code here--></div>",
+    "validation_rules": {
+      "language": "html",
+      "required_tags": [],
+      "min_counts": {},
+      "require_non_empty_text_tags": []
+    },
+    "exp": 0,
+    "order_no": 2
+  }
+]
