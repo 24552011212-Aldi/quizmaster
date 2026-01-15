@@ -168,8 +168,7 @@ if (count($soal_list) == 0) {
                         style="width: 120px; height: 120px; margin: 0 auto 24px auto;"
                         autoplay
                         loop
-                        id="celebrate-lottie"
-                    ></lottie-player>
+                        id="celebrate-lottie"></lottie-player>
                     <h2 class="text-4xl font-black text-white mb-2">SURVIVED!</h2>
                     <p class="text-slate-400 mb-8 italic">Kamu MC! Dungeon berhasil ditaklukkan.</p>
                     <p class="text-slate-400 mb-8">ヾ(⌐■_■)ノ♪</p>
@@ -182,6 +181,8 @@ if (count($soal_list) == 0) {
             </div>
         </transition>
     </div>
+
+    <?php include '../../include/footer.php'; ?>
 
     <!-- Sound Effects -->
     <audio id="sfx-correct" src="../../player/assets/audio/correct.mp3" preload="auto"></audio>
@@ -200,7 +201,44 @@ if (count($soal_list) == 0) {
 
         createApp({
             setup() {
-                const soal = ref(<?php echo json_encode($soal_list); ?>);
+                const rawSoal = <?php echo json_encode($soal_list); ?>;
+
+                // Pisahkan pertanyaan dari code snippet jika ada
+                const processedSoal = rawSoal.map(item => {
+                    let questionText = item.soal;
+                    let codeSnippet = item.snippet || '';
+
+                    // Cek apakah ada pattern code di dalam soal (misalnya ada "?" di akhir diikuti code)
+                    // Pattern 1: Teks diikuti kode Python/JavaScript yang jelas
+                    const codePatterns = [
+                        /\?\s*(i\s*=\s*\d+[\s\S]*)/i, // Pattern untuk code yang dimulai dengan assignment
+                        /\?\s*(for\s+[\s\S]*)/i, // Pattern untuk loop
+                        /\?\s*(while\s+[\s\S]*)/i, // Pattern untuk while loop
+                        /\?\s*(def\s+[\s\S]*)/i, // Pattern untuk function definition
+                        /\?\s*(function\s+[\s\S]*)/i, // Pattern untuk function
+                        /\?\s*(const\s+[\s\S]*)/i, // Pattern untuk const/let/var
+                        /\?\s*(let\s+[\s\S]*)/i,
+                        /\?\s*(var\s+[\s\S]*)/i,
+                        /\?\s*(\$[\w]+\s*=[\s\S]*)/i, // Pattern untuk PHP variable
+                    ];
+
+                    for (let pattern of codePatterns) {
+                        const match = questionText.match(pattern);
+                        if (match) {
+                            codeSnippet = match[1].trim();
+                            questionText = questionText.substring(0, match.index + 1).trim();
+                            break;
+                        }
+                    }
+
+                    return {
+                        ...item,
+                        soal: questionText,
+                        snippet: codeSnippet
+                    };
+                });
+
+                const soal = ref(processedSoal);
                 const currentStep = ref(0);
                 const totalScore = ref(0);
                 const lives = ref(3); // Sistem Nyawa Roguelike
@@ -322,6 +360,7 @@ if (count($soal_list) == 0) {
             }
         }).mount('#app');
     </script>
+
 </body>
 
 </html>

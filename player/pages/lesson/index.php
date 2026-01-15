@@ -16,28 +16,88 @@ if ($materi_id > 0) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $materi_nama; ?> - Interactive Lessons</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow: hidden; background-color: #0f172a; }
-        .code-editor { font-family: 'Fira Code', monospace; background-color: #1e1e1e; color: #d4d4d4; line-height: 1.6; resize: none; font-size: 14px; }
-        .line-numbers { background-color: #181818; color: #565656; font-family: 'Fira Code', monospace; padding: 16px 12px; text-align: right; user-select: none; font-size: 14px; line-height: 1.6; border-right: 1px solid #2d2d2d; white-space: pre; overflow: hidden; }
-        .output-frame { background: white; width: 100%; height: 100%; border: none; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        .panel-container { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+        }
+
+        .output-frame {
+            background: white;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .panel-container {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        #code-editor-container {
+            font-family: 'Fira Code', monospace;
+            height: 100%;
+        }
+
+        .CodeMirror {
+            font-family: 'Fira Code', monospace !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            background-color: #1e1e1e !important;
+            height: 100% !important;
+        }
+
+        .CodeMirror-gutters {
+            background-color: #181818 !important;
+            border-right: 1px solid #2d2d2d !important;
+        }
     </style>
 </head>
+
 <body class="text-slate-200">
+
     <div class="h-screen flex flex-col">
         <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 shadow-xl z-10">
             <div class="flex justify-between items-center">
@@ -79,7 +139,11 @@ if ($materi_id > 0) {
                         <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Instructions</span>
                     </div>
                     <div id="lesson-content" class="flex-1 overflow-y-auto p-6 prose prose-invert prose-base max-w-none">
-                        <div class="animate-pulse space-y-4"><div class="h-6 bg-slate-800 rounded w-3/4"></div><div class="h-4 bg-slate-800 rounded w-full"></div><div class="h-4 bg-slate-800 rounded w-5/6"></div></div>
+                        <div class="animate-pulse space-y-4">
+                            <div class="h-6 bg-slate-800 rounded w-3/4"></div>
+                            <div class="h-4 bg-slate-800 rounded w-full"></div>
+                            <div class="h-4 bg-slate-800 rounded w-5/6"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="h-120 panel-container bg-slate-900/50 flex flex-col">
@@ -110,8 +174,7 @@ if ($materi_id > 0) {
                     </div>
                 </div>
                 <div class="flex-1 flex overflow-hidden">
-                    <div id="line-numbers" class="line-numbers">1</div>
-                    <textarea id="code-editor" class="code-editor flex-1 p-4 outline-none" spellcheck="false" placeholder=""></textarea>
+                    <div id="code-editor-container" class="flex-1"></div>
                 </div>
             </section>
             <section class="flex-1 panel-container bg-white flex flex-col shadow-2xl border-slate-800">
@@ -120,7 +183,7 @@ if ($materi_id > 0) {
                         <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                         <span class="text-[11px] font-bold uppercase text-slate-500 tracking-tighter">Live Preview</span>
                     </div>
-                    <span class="text-[10px] text-slate-400 font-mono italic">localhost:8080</span>
+                    <span class="text-[10px] text-slate-400 font-mono italic">Aldi alfariz 24552011212 - TIF RP23 CNS A - UASWEB1</span>
                 </div>
                 <div class="flex-1 bg-white">
                     <iframe id="output-frame" class="output-frame" sandbox="allow-scripts allow-same-origin"></iframe>
@@ -150,17 +213,61 @@ if ($materi_id > 0) {
             <button id="close-error-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition-all">TRY AGAIN</button>
         </div>
     </div>
+
     <script>
-        let currentLessonId = null, allLessons = [], userProgress = [], currentFiles = {}, currentActiveFile = null;
+        let currentLessonId = null,
+            allLessons = [],
+            userProgress = [],
+            currentFiles = {},
+            currentActiveFile = null,
+            editor = null;
         const materiId = <?php echo $materi_id; ?>;
-        const languageFileMap = {html: ['index.html'], css: ['index.html', 'style.css'], javascript: ['index.html', 'script.js'], php: ['index.php'], python: ['main.py']};
-        
-        const getLanguageFromRules = (rules) => rules ? (rules.language || 'html').toLowerCase() : 'html';
-        const getFilesForLesson = (lesson) => {
-            const rules = lesson.validation_rules ? JSON.parse(lesson.validation_rules) : null;
-            return languageFileMap[getLanguageFromRules(rules)] || ['index.html'];
+        const languageFileMap = {
+            html: ['index.html'],
+            css: ['index.html', 'style.css']
         };
-        
+
+        const getLanguageMode = (filename) => {
+            const ext = filename.split('.').pop().toLowerCase();
+            const modeMap = {
+                'html': 'htmlmixed',
+                'css': 'css'
+            };
+            return modeMap[ext] || 'null';
+        };
+
+        const getLanguageFromRules = (rules) => rules ? (rules.language || 'html').toLowerCase() : 'html';
+        const buildStarterFiles = (lesson) => {
+            const rules = lesson.validation_rules ? JSON.parse(lesson.validation_rules) : null;
+            const lang = getLanguageFromRules(rules);
+            const starter = lesson.starter_code || '';
+
+            switch (lang) {
+                case 'html':
+                    return {
+                        files: {
+                                'index.html': starter || '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="UTF-8" />\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>'
+                            },
+                            active: 'index.html'
+                    };
+                case 'css':
+                    return {
+                        files: {
+                                'index.html': `<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="UTF-8" />\n  <title>CSS Lesson</title>\n  <link rel="stylesheet" href="style.css" />\n</head>\n<body>\n  <p class="text">Text example</p>\n  <div class="box"></div>\n</body>\n</html>`,
+                                'style.css': starter || '/* Write your CSS here */\n.text {\n  color: black;\n}'
+                            },
+                            active: 'style.css'
+                    };
+                default:
+                    return {
+                        files: {
+                                'index.html': starter || '<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="UTF-8" />\n  <title>Lesson</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>'
+                            },
+                            active: 'index.html'
+                    };
+            }
+        };
+
         const renderFileTabs = () => {
             const tabs = document.getElementById('file-tabs');
             tabs.innerHTML = '';
@@ -172,31 +279,27 @@ if ($materi_id > 0) {
                 tabs.appendChild(btn);
             });
         };
-        
+
         const switchFile = (fn) => {
-            currentFiles[currentActiveFile] = document.getElementById('code-editor').value;
+            currentFiles[currentActiveFile] = editor.getValue();
             currentActiveFile = fn;
-            document.getElementById('code-editor').value = currentFiles[fn] || '';
+            editor.setValue(currentFiles[fn] || '');
+            editor.setOption('mode', getLanguageMode(fn));
             renderFileTabs();
-            updateLineNumbers();
             runCode();
         };
 
-        document.addEventListener('DOMContentLoaded', () => { loadLessons(); loadProgress(); setupEventListeners(); });
-        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLessons();
+            loadProgress();
+            setupEventListeners();
+        });
+
         function setupEventListeners() {
             document.getElementById('run-btn').addEventListener('click', runCode);
             document.getElementById('submit-btn').addEventListener('click', submitAnswer);
             document.getElementById('next-lesson-btn').addEventListener('click', goToNextLesson);
             document.getElementById('close-error-btn').addEventListener('click', () => document.getElementById('error-modal').classList.add('hidden'));
-            const editor = document.getElementById('code-editor');
-            editor.addEventListener('input', updateLineNumbers);
-            editor.addEventListener('scroll', syncScroll);
-            editor.addEventListener('keydown', function(e) {
-                if (e.key == 'Tab') { e.preventDefault(); let start = this.selectionStart, end = this.selectionEnd;
-                    this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                    this.selectionStart = this.selectionEnd = start + 4; }
-            });
         }
 
         async function loadLessons() {
@@ -207,24 +310,39 @@ if ($materi_id > 0) {
                     renderLessonList();
                     if (allLessons.length > 0) loadLesson(allLessons[0].id);
                 }
-            } catch (error) { console.error('Error loading lessons:', error); }
+            } catch (error) {
+                console.error('Error loading lessons:', error);
+            }
         }
 
         async function loadProgress() {
             try {
                 const data = await (await fetch('../../../server/lesson/api_progress.php?action=get')).json();
-                if (data.success) { userProgress = data.progress; updateProgressBar(); }
-            } catch (error) { console.error('Error loading progress:', error); }
+                if (data.success) {
+                    userProgress = data.progress;
+                    updateProgressBar();
+                }
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
         }
 
         function renderLessonList() {
             const list = document.getElementById('lesson-list');
-            if (allLessons.length === 0) { list.innerHTML = '<div class="text-slate-500 text-xs p-4">No lessons found.</div>'; return; }
+            if (allLessons.length === 0) {
+                list.innerHTML = '<div class="text-slate-500 text-xs p-4">No lessons found.</div>';
+                return;
+            }
             list.innerHTML = allLessons.map(l => {
-                const done = userProgress.includes(l.id), active = currentLessonId === l.id, exp = l.exp || 10;
-                let bg = 'hover:bg-slate-800 text-slate-400', badge = '';
-                if (done && !active) { bg = 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'; badge = '<span class="text-[8px] font-bold bg-emerald-500/40 text-emerald-200 px-2 py-1 rounded">✓ DONE</span>'; }
-                else if (active) bg = 'bg-blue-600 text-white shadow-lg';
+                const done = userProgress.includes(l.id),
+                    active = currentLessonId === l.id,
+                    exp = l.exp || 10;
+                let bg = 'hover:bg-slate-800 text-slate-400',
+                    badge = '';
+                if (done && !active) {
+                    bg = 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
+                    badge = '<span class="text-[8px] font-bold bg-emerald-500/40 text-emerald-200 px-2 py-1 rounded">✓ DONE</span>';
+                } else if (active) bg = 'bg-blue-600 text-white shadow-lg';
                 return `<button onclick="loadLesson(${l.id})" class="w-full text-left p-3 rounded-lg flex items-center justify-between transition-all group ${bg}">
                     <div class="flex items-center gap-2 flex-1 min-w-0">
                         <span class="text-[10px] font-mono ${active ? 'text-blue-200' : done ? 'text-emerald-500' : 'text-slate-600'} flex-shrink-0">${l.order_no.toString().padStart(2, '0')}</span>
@@ -240,57 +358,114 @@ if ($materi_id > 0) {
                 const data = await (await fetch(`../../../server/lesson/api_lesson.php?id=${id}`)).json();
                 if (data.success) {
                     currentLessonId = id;
-                    const l = data.lesson, exp = l.exp || 10, done = userProgress.includes(id);
+                    const l = data.lesson,
+                        exp = l.exp || 10,
+                        done = userProgress.includes(id);
                     let html = `<div class="flex items-start justify-between mb-4"><h2 class="text-xl font-bold text-white">${l.title}</h2><div class="flex items-center gap-2">`;
                     if (done) html += '<div class="flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-lg"><i class="fas fa-check-circle text-emerald-400 text-sm"></i><span class="text-sm font-bold text-emerald-300">COMPLETED</span></div>';
-                    html += `<div class="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 px-3 py-1.5 rounded-lg">
-                        <i class="fas fa-star text-yellow-400 text-sm"></i><span class="text-sm font-bold text-yellow-300">${exp} XP</span></div></div></div>
-                        <div class="text-slate-300 leading-relaxed text-sm">${l.content}</div>`;
+                    html += '<div class="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 px-3 py-1.5 rounded-lg"><i class="fas fa-star text-yellow-400 text-sm"></i><span class="text-sm font-bold text-yellow-300">' + exp + ' XP</span></div></div></div><div class="text-slate-300 leading-relaxed text-sm">' + l.content + '</div>';
                     document.getElementById('lesson-content').innerHTML = html;
-                    
-                    const files = getFilesForLesson(l);
-                    currentFiles = {};
-                    files.forEach(f => { currentFiles[f] = l.starter_code || ''; });
-                    currentActiveFile = files[0];
-                    document.getElementById('code-editor').value = currentFiles[currentActiveFile] || '';
+
+                    const starter = buildStarterFiles(l);
+                    currentFiles = starter.files;
+                    currentActiveFile = starter.active;
+
+                    if (!editor) {
+                        editor = CodeMirror(document.getElementById('code-editor-container'), {
+                            value: currentFiles[currentActiveFile] || '',
+                            mode: getLanguageMode(currentActiveFile),
+                            theme: 'material-darker',
+                            lineNumbers: true,
+                            indentUnit: 4,
+                            indentWithTabs: false,
+                            lineWrapping: true,
+                            styleActiveLine: true,
+                            matchBrackets: true,
+                            autoCloseBrackets: true
+                        });
+                        // Auto-run on change with debounce
+                        let runTimeout;
+                        editor.on('change', function() {
+                            clearTimeout(runTimeout);
+                            runTimeout = setTimeout(runCode, 1000);
+                        });
+                    } else {
+                        editor.setValue(currentFiles[currentActiveFile] || '');
+                        editor.setOption('mode', getLanguageMode(currentActiveFile));
+                    }
+
                     renderFileTabs();
-                    
-                    const editor = document.getElementById('code-editor'), btn = document.getElementById('submit-btn');
-                    if (done) { editor.disabled = true; editor.classList.add('opacity-60', 'cursor-not-allowed'); btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed'); }
-                    else { editor.disabled = false; editor.classList.remove('opacity-60', 'cursor-not-allowed'); btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }
-                    updateLineNumbers(); renderLessonList(); runCode();
+
+                    const btn = document.getElementById('submit-btn');
+                    if (done) {
+                        editor.setOption('readOnly', true);
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        editor.setOption('readOnly', false);
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                    renderLessonList();
+                    runCode();
                 }
-            } catch (error) { console.error('Error loading lesson:', error); }
+            } catch (error) {
+                console.error('Error loading lesson:', error);
+            }
         }
 
         async function runCode() {
-            const code = document.getElementById('code-editor').value;
+            currentFiles[currentActiveFile] = editor.getValue();
             try {
-                const data = await (await fetch('../../../server/lesson/api_run.php', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `code=${encodeURIComponent(code)}` })).json();
+                const data = await (await fetch('../../../server/lesson/api_run.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: currentFiles
+                    })
+                })).json();
                 if (data.success) {
-                    const iframe = document.getElementById('output-frame'), doc = iframe.contentDocument || iframe.contentWindow.document;
-                    doc.open(); doc.write(data.html); doc.close();
+                    const iframe = document.getElementById('output-frame'),
+                        doc = iframe.contentDocument || iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(data.html);
+                    doc.close();
                 }
-            } catch (error) { console.error('Error running code:', error); }
+            } catch (error) {
+                console.error('Error running code:', error);
+            }
         }
 
         async function submitAnswer() {
-            currentFiles[currentActiveFile] = document.getElementById('code-editor').value;
+            currentFiles[currentActiveFile] = editor.getValue();
             const code = currentFiles[currentActiveFile];
             if (!currentLessonId) return;
             try {
-                const data = await (await fetch('../../../server/lesson/api_check.php', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `lesson_id=${currentLessonId}&code=${encodeURIComponent(code)}` })).json();
+                const data = await (await fetch('../../../server/lesson/api_check.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `lesson_id=${currentLessonId}&code=${encodeURIComponent(code)}`
+                })).json();
                 if (data.success && data.correct) {
                     if (!userProgress.includes(currentLessonId)) userProgress.push(currentLessonId);
-                    const l = allLessons.find(x => x.id === currentLessonId), exp = l?.exp || 10;
+                    const l = allLessons.find(x => x.id === currentLessonId),
+                        exp = l?.exp || 10;
                     document.getElementById('earned-xp').textContent = exp;
                     saveXPToAccount(currentLessonId, exp);
-                    updateProgressBar(); renderLessonList(); document.getElementById('success-modal').classList.remove('hidden');
+                    updateProgressBar();
+                    renderLessonList();
+                    document.getElementById('success-modal').classList.remove('hidden');
                 } else {
                     document.getElementById('error-message').textContent = data.message || 'Output structure is incorrect. Keep trying!';
                     document.getElementById('error-modal').classList.remove('hidden');
                 }
-            } catch (error) { console.error('Error checking answer:', error); }
+            } catch (error) {
+                console.error('Error checking answer:', error);
+            }
         }
 
         function goToNextLesson() {
@@ -301,28 +476,31 @@ if ($materi_id > 0) {
         }
 
         function updateProgressBar() {
-            const pct = allLessons.length > 0 ? Math.round((userProgress.length / allLessons.length) * 100) : 0;
+            const pct = allLessons.length > 0 ? Math.min(100, Math.round((userProgress.length / allLessons.length) * 100)) : 0;
             document.getElementById('progress-bar').style.width = pct + '%';
             document.getElementById('progress-text').textContent = pct + '%';
         }
 
         async function saveXPToAccount(lessonId, exp) {
             try {
-                const data = await (await fetch('../../../server/lesson/api_exp.php', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({lesson_id: lessonId, exp_amount: exp}) })).json();
+                const data = await (await fetch('../../../server/lesson/api_exp.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lesson_id: lessonId,
+                        exp_amount: exp
+                    })
+                })).json();
                 if (data.success) console.log('XP saved: +' + data.exp_added + ' XP (Total: ' + data.total_exp + ')');
                 else console.error('Error saving XP:', data.message);
-            } catch (error) { console.error('Error saving XP:', error); }
-        }
-
-        function updateLineNumbers() {
-            const editor = document.getElementById('code-editor'), nums = document.getElementById('line-numbers'), lines = editor.value.split('\n').length;
-            nums.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
-        }
-
-        function syncScroll() {
-            const editor = document.getElementById('code-editor'), nums = document.getElementById('line-numbers');
-            nums.scrollTop = editor.scrollTop;
+            } catch (error) {
+                console.error('Error saving XP:', error);
+            }
         }
     </script>
+
 </body>
+
 </html>

@@ -176,6 +176,8 @@ $query_kategori = mysqli_query($conn, "
             </div>
         </div>
     </main>
+
+    <?php include '../../include/footer.php'; ?>
 </body>
 
 </html>

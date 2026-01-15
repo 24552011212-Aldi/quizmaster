@@ -352,92 +352,121 @@ $total_selesai_global = $selesai_data['total'];
                     <i class="fas fa-book-open text-emerald-500"></i> Lessons
                 </h2>
                 <div id="lesson-list-dashboard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php
-                // Ambil semua materi
-                $materi = [];
-                $resMateri = mysqli_query($conn, "SELECT * FROM materi_lesson ORDER BY id ASC");
-                while ($row = mysqli_fetch_assoc($resMateri)) { $materi[] = $row; }
-
-                // Ambil lesson per materi
-                $lessonsByMateri = [];
-                $resLessons = mysqli_query($conn, "SELECT id, title, order_no, materi_id FROM lessons ORDER BY order_no ASC");
-                while ($row = mysqli_fetch_assoc($resLessons)) {
-                    $lessonsByMateri[$row['materi_id']][] = $row;
-                }
-
-                // Ambil progress user
-                $progressIds = [];
-                $stmtProg = $conn->prepare("SELECT lesson_id FROM progress WHERE user_id = ? AND completed = 1");
-                $stmtProg->bind_param("i", $user_id);
-                $stmtProg->execute();
-                $rsProg = $stmtProg->get_result();
-                while ($r = $rsProg->fetch_assoc()) { $progressIds[] = intval($r['lesson_id']); }
-                $stmtProg->close();
-
-                // Icon mapping
-                function materiIconClass($icon) {
-                    $fa = [
-                        'fa-html5' => 'fab fa-html5 text-orange-500',
-                        'fa-css3-alt' => 'fab fa-css3-alt text-blue-400',
-                        'fa-js' => 'fab fa-js text-yellow-400',
-                        'fa-php' => 'fab fa-php text-indigo-400',
-                        'fa-python' => 'fab fa-python text-blue-500',
-                        'fa-java' => 'fab fa-java text-red-500',
-                        
-                    ];
-                    return $fa[$icon] ?? 'fas fa-terminal text-blue-500';
-                }
-
-                // Render card per materi
-                foreach ($materi as $m) {
-                    $mid = $m['id'];
-                    $lessons = $lessonsByMateri[$mid] ?? [];
-                    $total = count($lessons);
-                    $done = 0;
-                    foreach ($lessons as $l) {
-                        if (in_array($l['id'], $progressIds)) $done++;
+                    <?php
+                    // Ambil hanya materi HTML dan CSS untuk lessons
+                    $materi = [];
+                    $resMateri = mysqli_query($conn, "SELECT * FROM materi_lesson WHERE LOWER(nama) IN ('html', 'css') ORDER BY id ASC");
+                    while ($row = mysqli_fetch_assoc($resMateri)) {
+                        $materi[] = $row;
                     }
-                    $percent = $total > 0 ? round(($done/$total)*100) : 0;
-                    $iconClass = materiIconClass($m['icon']);
-                    echo '<div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group relative">';
-                    echo '  <i class="'.$iconClass.' absolute -right-4 -top-4 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.07] transition-all duration-700 pointer-events-none" style="font-size:10rem"></i>';
-                    echo '  <div class="relative p-6 flex flex-col h-full z-10">';
-                    echo '    <div class="flex justify-between items-start mb-6">';
-                    echo '      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/50 transition-all duration-500">';
-                    echo '        <i class="'.$iconClass.' text-2xl"></i>';
-                    echo '      </div>';
-                    $statusClass = ($done==$total && $total>0) ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500' : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400';
-                    $dotColor = ($done==$total && $total>0) ? 'bg-emerald-500 animate-pulse' : 'bg-indigo-400';
-                    $statusText = ($done==$total && $total>0) ? 'Done' : 'Active';
-                    echo '      <div class="flex items-center gap-1.5 ' . $statusClass . ' px-3 py-1 rounded-full backdrop-blur-md">';
-                    echo '        <span class="w-1.5 h-1.5 ' . $dotColor . ' rounded-full"></span>';
-                    echo '        <span class="text-[9px] font-black uppercase tracking-widest">' . $statusText . '</span>';
-                    echo '      </div>';
-                    echo '    </div>';
-                    echo '    <div class="mb-4">';
-                    echo '      <h3 class="text-lg font-extrabold text-white tracking-tight group-hover:text-indigo-400 transition-colors">'.htmlspecialchars($m['nama']).'</h3>';
-                    echo '      <p class="text-slate-400 text-xs leading-relaxed opacity-80">'.($total).' Lesson</p>';
-                    echo '    </div>';
-                    echo '    <div class="mt-auto space-y-3 mb-6 bg-slate-900/50 p-4 rounded-3xl border border-white/5 group-hover:border-indigo-500/20 transition-colors">';
-                    echo '      <div class="flex justify-between items-end">';
-                    echo '        <div>'; 
-                    echo '          <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Completion Rate</p>';
-                    echo '          <p class="text-lg font-black text-white">'.$percent.'<span class="text-xs text-slate-500 ml-0.5">%</span></p>';
-                    echo '        </div>';
-                    echo '        <p class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md">'.$done.' <span class="text-slate-600">/</span> '.$total.'</p>';
-                    echo '      </div>';
-                    echo '      <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden p-[2px]">';
-                    echo '        <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r '.($done==$total && $total>0?'from-emerald-600 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]':'from-indigo-600 to-blue-400 shadow-[0_0_10px_rgba(79,70,229,0.4)]').'" style="width: '.$percent.'%"></div>';
-                    echo '      </div>';
-                    echo '    </div>';
-                    echo '    <a href="lesson/index.php?materi='.$mid.'" class="group/btn relative flex items-center justify-center w-full '.($done==$total && $total>0?'bg-emerald-600 hover:bg-emerald-500':'bg-indigo-600 hover:bg-indigo-500').' text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg '.($done==$total && $total>0?'shadow-emerald-600/20':'shadow-indigo-600/20').' active:scale-95 overflow-hidden">';
-                    echo '      <span class="relative z-10 flex items-center gap-2">Lihat Lesson <i class="fas fa-arrow-right text-[10px] group-hover/btn:translate-x-1 transition-transform"></i></span>';
-                    echo '      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>';
-                    echo '    </a>';
-                    echo '  </div>';
-                    echo '</div>';
-                }
-                ?>
+
+                    // Ambil lesson per materi
+                    $lessonsByMateri = [];
+                    $resLessons = mysqli_query($conn, "SELECT id, title, order_no, materi_id FROM lessons ORDER BY order_no ASC");
+                    while ($row = mysqli_fetch_assoc($resLessons)) {
+                        $lessonsByMateri[$row['materi_id']][] = $row;
+                    }
+
+                    // Ambil progress user
+                    $progressIds = [];
+                    $stmtProg = $conn->prepare("SELECT lesson_id FROM progress WHERE user_id = ? AND completed = 1");
+                    $stmtProg->bind_param("i", $user_id);
+                    $stmtProg->execute();
+                    $rsProg = $stmtProg->get_result();
+                    while ($r = $rsProg->fetch_assoc()) {
+                        $progressIds[] = intval($r['lesson_id']);
+                    }
+                    $stmtProg->close();
+
+                    // Icon mapping
+                    function materiIconClass($icon, $nama = '')
+                    {
+                        // Direct icon mapping when materi_lesson.icon is set
+                        $fa = [
+                            'fa-html5' => 'fab fa-html5 text-orange-500',
+                            'fa-css3-alt' => 'fab fa-css3-alt text-blue-400',
+                            'fa-css3' => 'fab fa-css3-alt text-blue-400',
+                            'fa-js' => 'fab fa-js text-yellow-400',
+                            'fa-php' => 'fab fa-php text-indigo-400',
+                            'fa-python' => 'fab fa-python text-blue-500',
+                            'fa-java' => 'fab fa-java text-red-500',
+                        ];
+
+                        if ($icon && isset($fa[$icon])) {
+                            return $fa[$icon];
+                        }
+
+                        // Fallback: infer from materi name when icon column is empty
+                        $nameMap = [
+                            'html' => 'fab fa-html5 text-orange-500',
+                            'css' => 'fab fa-css3-alt text-blue-400',
+                            'javascript' => 'fab fa-js text-yellow-400',
+                            'js' => 'fab fa-js text-yellow-400',
+                            'php' => 'fab fa-php text-indigo-400',
+                            'python' => 'fab fa-python text-blue-500',
+                            'java' => 'fab fa-java text-red-500',
+                        ];
+
+                        $namaLower = strtolower($nama);
+                        foreach ($nameMap as $key => $class) {
+                            if (stripos($namaLower, $key) !== false) {
+                                return $class;
+                            }
+                        }
+
+                        return 'fas fa-terminal text-blue-500';
+                    }
+
+                    // Render card per materi
+                    foreach ($materi as $m) {
+                        $mid = $m['id'];
+                        $lessons = $lessonsByMateri[$mid] ?? [];
+                        $total = count($lessons);
+                        $done = 0;
+                        foreach ($lessons as $l) {
+                            if (in_array($l['id'], $progressIds)) $done++;
+                        }
+                        $percent = $total > 0 ? round(($done / $total) * 100) : 0;
+                        $iconClass = materiIconClass($m['icon'], $m['nama']);
+                        echo '<div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group relative">';
+                        echo '  <i class="' . $iconClass . ' absolute -right-4 -top-4 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.07] transition-all duration-700 pointer-events-none" style="font-size:10rem"></i>';
+                        echo '  <div class="relative p-6 flex flex-col h-full z-10">';
+                        echo '    <div class="flex justify-between items-start mb-6">';
+                        echo '      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/50 transition-all duration-500">';
+                        echo '        <i class="' . $iconClass . ' text-2xl"></i>';
+                        echo '      </div>';
+                        $statusClass = ($done == $total && $total > 0) ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500' : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400';
+                        $dotColor = ($done == $total && $total > 0) ? 'bg-emerald-500 animate-pulse' : 'bg-indigo-400';
+                        $statusText = ($done == $total && $total > 0) ? 'Done' : 'Active';
+                        echo '      <div class="flex items-center gap-1.5 ' . $statusClass . ' px-3 py-1 rounded-full backdrop-blur-md">';
+                        echo '        <span class="w-1.5 h-1.5 ' . $dotColor . ' rounded-full"></span>';
+                        echo '        <span class="text-[9px] font-black uppercase tracking-widest">' . $statusText . '</span>';
+                        echo '      </div>';
+                        echo '    </div>';
+                        echo '    <div class="mb-4">';
+                        echo '      <h3 class="text-lg font-extrabold text-white tracking-tight group-hover:text-indigo-400 transition-colors">' . htmlspecialchars($m['nama']) . '</h3>';
+                        echo '      <p class="text-slate-400 text-xs leading-relaxed opacity-80">' . ($total) . ' Lesson</p>';
+                        echo '    </div>';
+                        echo '    <div class="mt-auto space-y-3 mb-6 bg-slate-900/50 p-4 rounded-3xl border border-white/5 group-hover:border-indigo-500/20 transition-colors">';
+                        echo '      <div class="flex justify-between items-end">';
+                        echo '        <div>';
+                        echo '          <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Completion Rate</p>';
+                        echo '          <p class="text-lg font-black text-white">' . $percent . '<span class="text-xs text-slate-500 ml-0.5">%</span></p>';
+                        echo '        </div>';
+                        echo '        <p class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md">' . $done . ' <span class="text-slate-600">/</span> ' . $total . '</p>';
+                        echo '      </div>';
+                        echo '      <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden p-[2px]">';
+                        echo '        <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r ' . ($done == $total && $total > 0 ? 'from-emerald-600 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'from-indigo-600 to-blue-400 shadow-[0_0_10px_rgba(79,70,229,0.4)]') . '" style="width: ' . $percent . '%"></div>';
+                        echo '      </div>';
+                        echo '    </div>';
+                        echo '    <a href="lesson/index.php?materi=' . $mid . '" class="group/btn relative flex items-center justify-center w-full ' . ($done == $total && $total > 0 ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-500') . ' text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg ' . ($done == $total && $total > 0 ? 'shadow-emerald-600/20' : 'shadow-indigo-600/20') . ' active:scale-95 overflow-hidden">';
+                        echo '      <span class="relative z-10 flex items-center gap-2">Lihat Lesson <i class="fas fa-arrow-right text-[10px] group-hover/btn:translate-x-1 transition-transform"></i></span>';
+                        echo '      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>';
+                        echo '    </a>';
+                        echo '  </div>';
+                        echo '</div>';
+                    }
+                    ?>
                 </div>
             </div>
             <script>
@@ -476,7 +505,10 @@ $total_selesai_global = $selesai_data['total'];
                         }
                     });
                     var buttons = document.querySelectorAll('.kategori-btn');
-                    buttons.forEach(function(b) { b.classList.remove('bg-blue-600', 'text-white'); b.classList.add('bg-slate-800', 'text-blue-400'); });
+                    buttons.forEach(function(b) {
+                        b.classList.remove('bg-blue-600', 'text-white');
+                        b.classList.add('bg-slate-800', 'text-blue-400');
+                    });
                     btn.classList.add('bg-blue-600', 'text-white');
                     btn.classList.remove('bg-slate-800', 'text-blue-400');
                 }
@@ -514,71 +546,71 @@ $total_selesai_global = $selesai_data['total'];
             }
         ?>
             <div class="category-card glass-card rounded-[2.5rem] overflow-hidden flex flex-col group relative" data-materi="<?php echo htmlspecialchars($materi_nama); ?>" data-idmateri="<?php echo htmlspecialchars($id_materi); ?>">
-    <i class="<?php echo $icon_class; ?> absolute -right-4 -top-4 text-8 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.07] transition-all duration-700 pointer-events-none" style="font-size: 10rem;"></i>
+                <i class="<?php echo $icon_class; ?> absolute -right-4 -top-4 text-8 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.07] transition-all duration-700 pointer-events-none" style="font-size: 10rem;"></i>
 
-    <div class="relative p-8 flex flex-col h-full z-10">
-        <div class="flex justify-between items-start mb-8">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/50 transition-all duration-500">
-                <i class="<?php echo $icon_class; ?> text-3xl"></i>
-            </div>
-            
-            <?php if ($is_fully_done): ?>
-                <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full backdrop-blur-md">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Done</span>
-                </div>
-            <?php else: ?>
-                <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full backdrop-blur-md">
-                    <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-                    <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Active</span>
-                </div>
-            <?php endif; ?>
-        </div>
+                <div class="relative p-8 flex flex-col h-full z-10">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl group-hover:scale-110 group-hover:border-indigo-500/50 transition-all duration-500">
+                            <i class="<?php echo $icon_class; ?> text-3xl"></i>
+                        </div>
 
-        <div class="mb-6">
-            <h3 class="text-2xl font-extrabold text-white mb-2 tracking-tight group-hover:text-indigo-400 transition-colors">
-                <?php echo htmlspecialchars($materi_nama); ?>
-            </h3>
-            <p class="text-slate-400 text-xs leading-relaxed opacity-80">
-                Uji kemampuan algoritma dan logika sistem pada modul <?php echo htmlspecialchars($materi_nama); ?>.
-            </p>
-        </div>
+                        <?php if ($is_fully_done): ?>
+                            <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full backdrop-blur-md">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Done</span>
+                            </div>
+                        <?php else: ?>
+                            <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full backdrop-blur-md">
+                                <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Active</span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
-        <div class="mt-auto space-y-3 mb-8 bg-slate-900/50 p-5 rounded-3xl border border-white/5 group-hover:border-indigo-500/20 transition-colors">
-            <div class="flex justify-between items-end">
-                <div>
-                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Completion Rate</p>
-                    <p class="text-xl font-black text-white">
-                        <?php echo ($total > 0) ? round(($selesai / $total) * 100) : 0; ?><span class="text-xs text-slate-500 ml-0.5">%</span>
-                    </p>
-                </div>
-                <p class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md">
-                    <?php echo $selesai; ?> <span class="text-slate-600">/</span> <?php echo $total; ?>
-                </p>
-            </div>
-            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden p-[2px]">
-                <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r <?php echo $is_fully_done ? 'from-emerald-600 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'from-indigo-600 to-blue-400 shadow-[0_0_10px_rgba(79,70,229,0.4)]'; ?>"
-                    style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%">
-                </div>
-            </div>
-        </div>
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-extrabold text-white mb-2 tracking-tight group-hover:text-indigo-400 transition-colors">
+                            <?php echo htmlspecialchars($materi_nama); ?>
+                        </h3>
+                        <p class="text-slate-400 text-xs leading-relaxed opacity-80">
+                            Uji kemampuan algoritma dan logika sistem pada modul <?php echo htmlspecialchars($materi_nama); ?>.
+                        </p>
+                    </div>
 
-        <?php if (!$is_fully_done): ?>
-            <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
-                class="group/btn relative flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95 overflow-hidden">
-                <span class="relative z-10 flex items-center gap-2">
-                    Deploy Mission <i class="fas fa-rocket text-[10px] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
-                </span>
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
-            </a>
-        <?php else: ?>
-            <div class="flex items-center justify-center gap-3 w-full bg-emerald-500/5 text-emerald-500/50 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border border-emerald-500/10">
-                <i class="fas fa-certificate text-emerald-500"></i>
-                Mission Cleared
+                    <div class="mt-auto space-y-3 mb-8 bg-slate-900/50 p-5 rounded-3xl border border-white/5 group-hover:border-indigo-500/20 transition-colors">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter mb-1">Completion Rate</p>
+                                <p class="text-xl font-black text-white">
+                                    <?php echo ($total > 0) ? round(($selesai / $total) * 100) : 0; ?><span class="text-xs text-slate-500 ml-0.5">%</span>
+                                </p>
+                            </div>
+                            <p class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md">
+                                <?php echo $selesai; ?> <span class="text-slate-600">/</span> <?php echo $total; ?>
+                            </p>
+                        </div>
+                        <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden p-[2px]">
+                            <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r <?php echo $is_fully_done ? 'from-emerald-600 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'from-indigo-600 to-blue-400 shadow-[0_0_10px_rgba(79,70,229,0.4)]'; ?>"
+                                style="width: <?php echo ($total > 0) ? ($selesai / $total) * 100 : 0; ?>%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if (!$is_fully_done): ?>
+                        <a href="quiz_play.php?materi=<?php echo urlencode($materi_nama); ?>"
+                            class="group/btn relative flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95 overflow-hidden">
+                            <span class="relative z-10 flex items-center gap-2">
+                                Deploy Mission <i class="fas fa-rocket text-[10px] group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
+                            </span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                        </a>
+                    <?php else: ?>
+                        <div class="flex items-center justify-center gap-3 w-full bg-emerald-500/5 text-emerald-500/50 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border border-emerald-500/10">
+                            <i class="fas fa-certificate text-emerald-500"></i>
+                            Mission Cleared
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-        <?php endif; ?>
-    </div>
-</div>
         <?php
         }
         ?>
@@ -672,9 +704,7 @@ $total_selesai_global = $selesai_data['total'];
         </div>
 
         <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
-                &copy; 24552011212_Aldi Alfariz_TIF 23 RP CNS A_UASWEB1
-            </p>
+            <?php include '../../include/footer.php'; ?>
             <div class="flex gap-8">
                 <a href="#" class="text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-widest">Privacy Policy</a>
                 <a href="#" class="text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-widest">Terms of Service</a>

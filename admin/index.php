@@ -1,11 +1,16 @@
 <?php
 session_start();
 include_once "../server/auth_check.php";
+
 checkLogin();
 if (!isAdmin()) {
     header("Location: ../login.php");
     exit();
 }
+// Clear cache
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 ?>
 
 <!DOCTYPE html>
@@ -14,10 +19,13 @@ if (!isAdmin()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Admin Dashboard - CodeMaster</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js?v=<?php echo time(); ?>"></script>
+    <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=<?php echo time(); ?>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -37,7 +45,7 @@ if (!isAdmin()) {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         }
 
- 
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
@@ -243,8 +251,8 @@ if (!isAdmin()) {
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Batch_Lessons.json</span>
-                                <a href="./bulk_lesson_format.json" download class="ml-3 px-3 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition-all border border-emerald-200 flex items-center gap-1">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">bulk_lessons_format.json</span>
+                                <a href="./bulk_lessons_format.json" download class="ml-3 px-3 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition-all border border-emerald-200 flex items-center gap-1">
                                     <i class="fas fa-download"></i> Download Format
                                 </a>
                             </div>
@@ -268,7 +276,7 @@ if (!isAdmin()) {
                     <button @click="importBulkLessons"
                         class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-5 rounded-[2rem] hover:shadow-2xl hover:shadow-emerald-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                         <i class="fas fa-layer-group"></i>
-                        LAUNCH BATCH IMPORT
+                        LAUNCH BULK IMPORT
                     </button>
                 </div>
 
@@ -364,9 +372,11 @@ if (!isAdmin()) {
                         <div class="md:col-span-2 space-y-6">
                             <input v-model="newQuiz.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
                             <div class="grid grid-cols-2 gap-4">
-                                <select v-model="newQuiz.materi" class="p-4 rounded-2xl form-input bg-slate-50">
+                                <select v-model="newQuiz.materi_id" class="p-4 rounded-2xl form-input bg-slate-50">
                                     <option value="">Pilih Materi</option>
-                                    <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                                    <option v-for="m in materiList" :key="'quiz_' + m.id" :value="m.id">
+                                        {{ m.nama }}
+                                    </option>
                                 </select>
                                 <input v-model="newQuiz.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
                             </div>
@@ -422,7 +432,7 @@ if (!isAdmin()) {
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Batch_Quiz.json</span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">bulk_quiz_format.json</span>
                                 <a href="./bulk_quiz_format.json" download class="ml-3 px-3 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition-all border border-emerald-200 flex items-center gap-1">
                                     <i class="fas fa-download"></i> Download Format
                                 </a>
@@ -447,14 +457,16 @@ if (!isAdmin()) {
                     <button @click="importBulk"
                         class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-5 rounded-[2rem] hover:shadow-2xl hover:shadow-emerald-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                         <i class="fas fa-layer-group"></i>
-                        LAUNCH BATCH IMPORT
+                        LAUNCH BULK IMPORT
                     </button>
                 </div>
                 <div class="bg-white rounded-[2rem] border overflow-hidden mb-6">
                     <div class="flex gap-4 p-5">
                         <select v-model="selectedMateri" class="p-4 rounded-2xl form-input bg-slate-50">
                             <option value="">Semua Materi</option>
-                            <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                            <option v-for="m in materiList" :key="'filter_' + m.id" :value="m.id">
+                                {{ m.nama }}
+                            </option>
                         </select>
                     </div>
                     <table class="w-full text-left">
@@ -485,9 +497,11 @@ if (!isAdmin()) {
                                         <div class="md:col-span-2 space-y-6">
                                             <input v-model="editQuizData.judul" type="text" placeholder="Judul Kuis" class="p-4 w-full rounded-2xl form-input bg-slate-50">
                                             <div class="grid grid-cols-2 gap-4">
-                                                <select v-model="editQuizData.materi" class="p-4 rounded-2xl form-input bg-slate-50">
+                                                <select v-model="editQuizData.materi_id" class="p-4 rounded-2xl form-input bg-slate-50">
                                                     <option value="">Pilih Materi</option>
-                                                    <option v-for="m in materiList" :key="m" :value="m">{{ m }}</option>
+                                                    <option v-for="m in materiList" :key="'edit_' + m.id" :value="m.id">
+                                                        {{ m.nama }}
+                                                    </option>
                                                 </select>
                                                 <input v-model="editQuizData.score" type="number" class="p-4 rounded-2xl form-input bg-slate-50">
                                             </div>
@@ -637,7 +651,7 @@ if (!isAdmin()) {
                 // Quiz
                 const newQuiz = ref({
                     judul: '',
-                    materi: '',
+                    materi_id: '',
                     soal: '',
                     snippet: '',
                     opsi_a: '',
@@ -675,7 +689,10 @@ if (!isAdmin()) {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify({ nama: newMateri.value, icon: '' })
+                                body: JSON.stringify({
+                                    nama: newMateri.value,
+                                    icon: ''
+                                })
                             });
                             const data = await res.json();
                             if (data.success) {
@@ -740,7 +757,7 @@ if (!isAdmin()) {
                     });
                     newQuiz.value = {
                         judul: '',
-                        materi: '',
+                        materi_id: '',
                         soal: '',
                         snippet: '',
                         opsi_a: '',
@@ -827,7 +844,7 @@ if (!isAdmin()) {
 
                 const filteredQuizzes = computed(() => {
                     if (!selectedMateri.value) return quizzes.value;
-                    return quizzes.value.filter(q => q.materi === selectedMateri.value);
+                    return quizzes.value.filter(q => q.id_materi == selectedMateri.value);
                 });
 
                 // Lesson Management
@@ -862,7 +879,12 @@ if (!isAdmin()) {
 
                 const addLesson = async () => {
                     try {
-                        const lessonData = { ...newLesson.value };
+                        const lessonData = {
+                            ...newLesson.value
+                        };
+
+                        console.log('Sending lesson data:', lessonData);
+
                         // Parse validation_rules if it's a string
                         if (lessonData.validation_rules && typeof lessonData.validation_rules === 'string') {
                             try {
@@ -872,14 +894,21 @@ if (!isAdmin()) {
                                 return;
                             }
                         }
-                        
-                        await fetch(`../server/lesson/api_lesson.php`, {
+
+                        const res = await fetch(`../server/lesson/api_lesson.php`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(lessonData)
                         });
+
+                        const result = await res.json();
+                        if (!result.success) {
+                            alert('Error: ' + (result.message || 'Unknown error'));
+                            return;
+                        }
+
                         newLesson.value = {
                             title: '',
                             materi_id: '',
@@ -910,7 +939,9 @@ if (!isAdmin()) {
                 };
 
                 const showEditLesson = (lesson) => {
-                    editLessonData.value = { ...lesson };
+                    editLessonData.value = {
+                        ...lesson
+                    };
                     editLessonModal.value = true;
                 };
 
@@ -921,7 +952,9 @@ if (!isAdmin()) {
 
                 const updateLesson = async () => {
                     try {
-                        const lessonData = { ...editLessonData.value };
+                        const lessonData = {
+                            ...editLessonData.value
+                        };
                         // Parse validation_rules if it's a string
                         if (lessonData.validation_rules && typeof lessonData.validation_rules === 'string') {
                             try {
@@ -931,14 +964,21 @@ if (!isAdmin()) {
                                 return;
                             }
                         }
-                        
-                        await fetch(`../server/lesson/api_lesson.php`, {
+
+                        const res = await fetch(`../server/lesson/api_lesson.php`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(lessonData)
                         });
+
+                        const result = await res.json();
+                        if (!result.success) {
+                            alert('Error: ' + (result.message || 'Unknown error'));
+                            return;
+                        }
+
                         closeEditLesson();
                         fetchLessons();
                         alert('Lesson updated successfully!');
@@ -950,15 +990,26 @@ if (!isAdmin()) {
                 const importBulkLessons = async () => {
                     try {
                         const data = JSON.parse(bulkLessonText.value);
+                        console.log('Importing bulk lessons:', data);
+
                         for (const item of data) {
-                            await fetch(`../server/lesson/api_lesson.php`, {
+                            const res = await fetch(`../server/lesson/api_lesson.php`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
                                 body: JSON.stringify(item)
                             });
+
+                            const result = await res.json();
+                            console.log('Response for item:', item.title, result);
+
+                            if (!result.success) {
+                                alert('Error importing ' + (item.title || 'unknown') + ': ' + (result.message || 'Unknown error'));
+                                return;
+                            }
                         }
+
                         bulkLessonText.value = '';
                         lessonMode.value = 'single';
                         fetchLessons();
@@ -1065,6 +1116,21 @@ if (!isAdmin()) {
             }
         }).mount('#app');
     </script>
+    <script>
+        // Force cache clear
+        console.log('App loaded at:', new Date().toISOString());
+        window.addEventListener('load', () => {
+            console.log('Page fully loaded');
+            // Force Vue to re-render all selects
+            document.querySelectorAll('select[v-model]').forEach(el => {
+                el.dispatchEvent(new Event('change', {
+                    bubbles: true
+                }));
+            });
+        });
+    </script>
+
+    <?php include '../../include/footer.php'; ?>
 </body>
 
 </html>

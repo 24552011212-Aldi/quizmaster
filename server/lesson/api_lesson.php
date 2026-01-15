@@ -4,18 +4,18 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/koneksi.php';
 
-// Check if user is logged in
+// Cek jika user sudah login
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+    echo json_encode(['success' => false, 'message' => 'Tidak terautentikasi']);
     exit();
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// GET - Retrieve lessons
+// GET - Ambil lesson
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        // Get specific lesson
+        // Ambil lesson spesifik
         $lessonId = intval($_GET['id']);
         
         $stmt = $conn->prepare("SELECT * FROM lessons WHERE id = ?");
@@ -38,7 +38,7 @@ if ($method === 'GET') {
         
         $stmt->close();
     } else {
-        // Get all lessons ordered by order_no
+        // Ambil semua lesson berdasarkan urutan
         $query = "SELECT * FROM lessons ORDER BY order_no ASC";
         $result = mysqli_query($conn, $query);
         
@@ -54,7 +54,7 @@ if ($method === 'GET') {
     }
 }
 
-// POST - Create new lesson
+// POST - Buat lesson baru
 elseif ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -65,7 +65,7 @@ elseif ($method === 'POST') {
     $exp = intval($data['exp'] ?? 10);
     $order_no = intval($data['order_no'] ?? 1);
     
-    // Handle validation_rules - convert array to JSON string
+    // Konversi validation_rules dari array ke JSON string jika diperlukan
     $validation_rules = null;
     if (!empty($data['validation_rules'])) {
         if (is_array($data['validation_rules'])) {
@@ -76,23 +76,27 @@ elseif ($method === 'POST') {
     }
     
     if (empty($title) || $materi_id === 0) {
-        echo json_encode(['success' => false, 'message' => 'Title and Materi are required']);
+        echo json_encode(['success' => false, 'message' => 'Judul dan Materi wajib diisi']);
         exit();
     }
     
     $stmt = $conn->prepare("INSERT INTO lessons (title, materi_id, content, starter_code, validation_rules, exp, order_no) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sisssii", $title, $materi_id, $content, $starter_code, $validation_rules, $exp, $order_no);
     
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Lesson created successfully', 'id' => $conn->insert_id]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error creating lesson: ' . $stmt->error]);
+    try {
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'lesson berhasil dibuat', 'id' => $conn->insert_id]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error membuat lesson: ' . $stmt->error]);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Exception: ' . $e->getMessage()]);
     }
     
     $stmt->close();
 }
 
-// PUT - Update lesson
+// PUT - Perbarui lesson
 elseif ($method === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -104,7 +108,7 @@ elseif ($method === 'PUT') {
     $exp = intval($data['exp'] ?? 10);
     $order_no = intval($data['order_no'] ?? 1);
     
-    // Handle validation_rules - convert array to JSON string
+    // Konversi validation_rules dari array ke JSON string jika diperlukan
     $validation_rules = null;
     if (!empty($data['validation_rules'])) {
         if (is_array($data['validation_rules'])) {
@@ -115,7 +119,7 @@ elseif ($method === 'PUT') {
     }
     
     if ($id === 0 || empty($title) || $materi_id === 0) {
-        echo json_encode(['success' => false, 'message' => 'Invalid data']);
+        echo json_encode(['success' => false, 'message' => 'Data tidak valid']);
         exit();
     }
     
@@ -123,20 +127,20 @@ elseif ($method === 'PUT') {
     $stmt->bind_param("sisssiii", $title, $materi_id, $content, $starter_code, $validation_rules, $exp, $order_no, $id);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Lesson updated successfully']);
+        echo json_encode(['success' => true, 'message' => 'lesson berhasil diperbarui']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error updating lesson: ' . $conn->error]);
+        echo json_encode(['success' => false, 'message' => 'Error memperbarui lesson: ' . $conn->error]);
     }
     
     $stmt->close();
 }
 
-// DELETE - Delete lesson
+// DELETE - Hapus lesson
 elseif ($method === 'DELETE') {
     $id = intval($_GET['id'] ?? 0);
     
     if ($id === 0) {
-        echo json_encode(['success' => false, 'message' => 'Invalid lesson ID']);
+        echo json_encode(['success' => false, 'message' => 'ID lesson tidak valid']);
         exit();
     }
     
@@ -144,9 +148,9 @@ elseif ($method === 'DELETE') {
     $stmt->bind_param("i", $id);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Lesson deleted successfully']);
+        echo json_encode(['success' => true, 'message' => 'lesson berhasil dihapus']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error deleting lesson: ' . $conn->error]);
+        echo json_encode(['success' => false, 'message' => 'Error menghapus lesson: ' . $conn->error]);
     }
     
     $stmt->close();

@@ -203,10 +203,6 @@
                     </div>
                 </section>
 
-                <footer class="py-10 text-center border-t border-white/5 text-slate-600 text-sm font-bold uppercase tracking-widest bottom-0 w-full bg-slate-900/50">
-                    &copy; Aldi alfariz 24552011212 - CodeMaster 2026
-                </footer>
-
                 <!-- Mouse Tracking Spotlight -->
                 <div id="mouse-spotlight"
                     class="fixed pointer-events-none rounded-full opacity-0 transition-opacity duration-500 z-[9999]"

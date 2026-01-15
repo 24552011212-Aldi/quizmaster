@@ -3,7 +3,7 @@
     "title": "HTML Heading Basics",
     "materi_id": 1,
     "content": "<p>Learn how to create headings in HTML using h1-h6 tags.</p><p>Headings are important for document structure and SEO.</p>",
-    "starter_code": "<!--Write your code here-->",
+    "starter_code": "",
     "validation_rules": {
       "language": "html",
       "required_tags": ["h1"],
@@ -14,10 +14,11 @@
     "order_no": 1
   },
   {
+    
     "title": "Example Lesson Title",
     "materi_id": 1,
     "content": "<p>Description of the lesson.</p><p>Instructions for the task.</p>",
-    "starter_code": "<div style=\"display:none;\" onclick=\"\"><!--Write your code here--></div>",
+    "starter_code": "",
     "validation_rules": {
       "language": "html",
       "required_tags": [],

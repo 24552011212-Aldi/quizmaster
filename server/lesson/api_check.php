@@ -78,7 +78,7 @@ function validate_structure($userHtml, $expectedHtml, &$details) {
     return empty($missing) && empty($needsText);
 }
 
-// Generic string-based validation (applies to all languages)
+// Validasi generic berbasis string (berlaku untuk semua bahasa)
 function apply_generic_rules($code, $rules, &$details, &$appliedChecks) {
     if (!empty($rules['required_contains']) && is_array($rules['required_contains'])) {
         $appliedChecks++;
@@ -90,6 +90,21 @@ function apply_generic_rules($code, $rules, &$details, &$appliedChecks) {
         }
         if (!empty($missing)) {
             $details[] = 'Required text not found: ' . implode(', ', $missing);
+        }
+    }
+
+    if (!empty($rules['required_code']) && is_array($rules['required_code'])) {
+        $appliedChecks++;
+        $missing = [];
+        foreach ($rules['required_code'] as $keyword) {
+            // Case-insensitive search for keyword (word boundary)
+            $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i';
+            if (!preg_match($pattern, $code)) {
+                $missing[] = $keyword;
+            }
+        }
+        if (!empty($missing)) {
+            $details[] = 'Missing required code: ' . implode(', ', $missing);
         }
     }
 
@@ -222,6 +237,11 @@ function validate_with_rules($userCode, $rules, &$details) {
 
     if ($appliedChecks === 0) {
         $details[] = 'No validation rules configured for this lesson. Please add constraints to validation_rules.';
+    }
+
+    // For non-HTML languages, if only generic checks were applied and all passed, mark as correct
+    if ($language !== 'html' && $appliedChecks > 0 && empty($details)) {
+        return true;
     }
 
     return $appliedChecks > 0 && empty($details);
