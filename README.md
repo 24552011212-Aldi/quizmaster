@@ -5,7 +5,7 @@ NIM    : 24552011212
 Kelas  : TIF RP-23 CNS A
 ```
 
-link : [link website](codemaster.my.id)
+link : [link website](https://codemaster.my.id/)
 # Project Documentation
 
 Berikut adalah dokumentasi tampilan aplikasi yang mencakup admin panel, player interface, dan halaman publik.
