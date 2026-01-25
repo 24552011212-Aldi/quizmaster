@@ -6,6 +6,10 @@ Kelas  : TIF RP-23 CNS A
 ```
 
 link : [link website](https://codemaster.my.id/)
+
+login admin
+username: atmin
+password: atmin123
 # Project Documentation
 
 Berikut adalah dokumentasi tampilan aplikasi yang mencakup admin panel, player interface, dan halaman publik.
