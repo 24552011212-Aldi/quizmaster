@@ -5,16 +5,20 @@ NIM    : 24552011212
 Kelas  : TIF RP-23 CNS A
 ```
 
-link : [link website](https://codemaster.my.id/)
+## link : [link website](https://codemaster.my.id/)
 
-login admin
-username: atmin
+### login admin <br>
+username: atmin <br>
 password: atmin123
 # Project Documentation
 
 Berikut adalah dokumentasi tampilan aplikasi yang mencakup admin panel, player interface, dan halaman publik.
 
 ---
+## 🎬 Video
+
+**video gameplay**
+<video src="assets/video/player.webm" ><video>
 
 ## 📌 Screenshots
 
