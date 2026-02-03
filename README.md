@@ -18,7 +18,7 @@ Berikut adalah dokumentasi tampilan aplikasi yang mencakup admin panel, player i
 ## 🎬 Video
 
 **video gameplay**
-<video src="assets/video/player.webm" ><video>
+[player.webm](https://github.com/user-attachments/assets/7af8b5a7-b2c2-4490-9c56-b050333b51f6)
 
 ## 📌 Screenshots
 
